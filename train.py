@@ -10,7 +10,7 @@ from tensorflow import data
 import numpy as np
 import os, sys, time
 from multiprocessing import Pool
-from model import resnet
+from model import resnet, resnext, wideResnet
 import util
 
 os.environ['CUDA_DEVICES_ORDER'] = 'PCI_BUS_ID'
@@ -24,15 +24,25 @@ if __name__ == '__main__':
     xs_test = np.array(['/home/hzm/cifar_data/test/' + f for f in os.listdir('/home/hzm/cifar_data/test/')])
     ys_test = np.array([int(f[-5]) for f in os.listdir('/home/hzm/cifar_data/test/')])
     
+    model_dict = {'PreResNet18':resnet.ResNet18, 'PreResNet50':resnet.PreResNet50, 
+                  'PreResNeXt29_32x4d':resnext.ResNeXt29_32x4d, 
+                  'WRN_28_10':wideResnet.WRN_28_10, 'WRN_16_4':wideResnet.WRN_16_4}
+    
     # Set the parameter.
+    net = model_dict['PreResNet18']
     epochs = 200
-    learning_rate = 0.05
-    weight_decay = 1e-4
+    learning_rate = 0.1
+    weight_decay = 5e-4
+    grad_clip = 5.0
+    
     mixup_alpha = 1.0
+    autoAugment = True
+    
     val_ratio = 0.1
     train_batch_size = 128
     val_batch_size = 100
     optimizer = tf.train.MomentumOptimizer
+    use_nesterov = True
     
     val_size = int(ys_train.shape[0] * val_ratio)
     val_batches = val_size // val_batch_size
@@ -51,7 +61,7 @@ if __name__ == '__main__':
     pool = Pool(procs)
     results = []
     for i in range(procs):
-        results.append(pool.apply_async(util.batch_parse, (xs_val[i], ys_val[i], False, mixup_alpha, )))
+        results.append(pool.apply_async(util.batch_parse, (xs_val[i], ys_val[i], False, mixup_alpha, autoAugment, )))
         
     pool.close()
     pool.join()
@@ -82,7 +92,7 @@ if __name__ == '__main__':
     train_flag = tf.placeholder(tf.bool, shape=[], name='training_flag')
     img, label = tf.cond(train_flag, train_iter.get_next, val_iter.get_next, name='dataset_selector')
     
-    pred = resnet.ResNet18(img, train_flag, weight_decay=weight_decay)
+    pred = net(img, train_flag, weight_decay=weight_decay)
     
     loss_no_reg = tf.losses.softmax_cross_entropy(label, pred)
     
@@ -91,13 +101,15 @@ if __name__ == '__main__':
     
     lr = tf.placeholder(tf.float32, shape=[], name='lr')
     if optimizer is tf.train.MomentumOptimizer:
-        optim = optimizer(lr, momentum=0.9)
+        optim = optimizer(lr, momentum=0.9, use_nesterov=use_nesterov)
     else:
         optim = optimizer(lr)
     
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     with tf.control_dependencies(update_ops):
-        train_op = optim.minimize(loss)
+        grads, variables = zip(*optim.compute_gradients(loss))
+        grads, global_norm = tf.clip_by_global_norm(grads, grad_clip)
+        train_op = optim.apply_gradients(zip(grads, variables))
     ###########################################################################
     
     ###########################################################################
@@ -143,12 +155,9 @@ if __name__ == '__main__':
         sess.run(tf.global_variables_initializer())
         sess.run(val_iter.initializer, feed_dict={val_x: xs_val, val_y: ys_val})
         
-        print('Training ......')
-        begin = time.time()
-        rnd_samples = np.arange(ys_train.shape[0])
-        
         #######################################################################
         # Augment the training data with multiprocess.
+        print('Data preparing ...')
         procs = 5
         xs = np.split(xs_train[:(xs_train.shape[0] // procs * procs)], procs)
         ys = np.split(ys_train[:(ys_train.shape[0] // procs * procs)], procs)
@@ -156,7 +165,7 @@ if __name__ == '__main__':
         pool = Pool(procs)
         results = []
         for i in range(procs):
-            results.append(pool.apply_async(util.batch_parse, (xs[i], ys[i], True, mixup_alpha, )))
+            results.append(pool.apply_async(util.batch_parse, (xs[i], ys[i], True, mixup_alpha, autoAugment, )))
         pool.close()
         pool.join()
         
@@ -168,12 +177,16 @@ if __name__ == '__main__':
         xs, ys = np.stack(xs_batch), np.stack(ys_batch)
         #######################################################################
         
+        print('Training ...')
+        begin = time.time()
+        
+        rnd_samples = np.arange(ys_train.shape[0])
         train_losses, train_err = np.zeros([2, epochs])
         val_losses, val_err = np.zeros([2, epochs])
-        best_val = 0.0
+        best_val = 100.0
         for e in range(epochs):
             
-            if e == 100 or e == 150 or e == 180:
+            if e == 80 or e == 140 or e == 180:
                 learning_rate /= 10
                 
             sess.run(train_iter.initializer, feed_dict={train_x: xs, train_y: ys})
@@ -186,7 +199,7 @@ if __name__ == '__main__':
             xs_train, ys_train = xs_train[rnd_samples], ys_train[rnd_samples]
             
             pool = Pool(1)
-            result = pool.apply_async(util.batch_parse, (xs_train, ys_train, True, mixup_alpha, ))
+            result = pool.apply_async(util.batch_parse, (xs_train, ys_train, True, mixup_alpha, autoAugment))
             pool.close()
             ###################################################################
             
@@ -198,7 +211,8 @@ if __name__ == '__main__':
                 train_losses[e] += loss_i
                 train_err[e] += err_batch
                 
-                sys.stdout.write('Epoch {}: {} / {} batches.  Error: {:.2f}  {:.2f}s   '.format(e+1, i+1, train_batches, err_batch, time.time()-batch_time) + '\r')
+                sys.stdout.write('Epoch {}: {} / {} batches.  Error: {:.2f}  Loss: {:.3f}  {:.2f}s   '.format(
+                                    e+1, i+1, train_batches, err_batch, loss_i, time.time()-batch_time) + '\r')
                 sys.stdout.flush()
                 
             train_losses[e] /= train_batches
@@ -222,7 +236,7 @@ if __name__ == '__main__':
             print('    Validation: Loss = {:.3f},   Val_err = {:.2f}  ({} samples)'.format(val_losses[e], val_err[e], val_size))
             print('')
             
-            if val_err[e] > best_val and e > 50:
+            if val_err[e] < best_val and e > 50:
                 best_val = val_err[e]
                 saver.save(sess, 'ckpt/model', global_step=e+1, write_meta_graph=True)
         

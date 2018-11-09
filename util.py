@@ -6,11 +6,39 @@ Created on Mon Nov  5 09:53:59 2018
 """
 
 from __future__ import print_function
+import os
 from PIL import  Image
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
 from model import ImageOperation, ImagePolicy
+
+def cifar10_to_png(src_dir, dst_dir):
+    import cPickle
+    xs_train = []
+    ys_train = []
+    for i in '12345':
+        with open(src_dir+'/data_batch_'+i, 'rb') as f:
+            train_data = cPickle.load(f)
+            xs_train.append(train_data['data'])
+            ys_train.extend(train_data['labels'])
+    with open(src_dir+'/test_batch', 'rb') as f:
+        test_data = cPickle.load(f)
+        xs_test = np.hstack(tuple([test_data['data'][:, i::1024] for i in range(1024)]))
+        ys_test = np.array(test_data['labels'])
+    
+    xs_train = np.vstack(tuple(xs_train))
+    xs_train = np.hstack(tuple([xs_train[:, i::1024] for i in range(1024)]))
+    ys_train = np.array(ys_train)
+    
+    os.mkdir(dst_dir)
+    os.mkdir(dst_dir+'/test')
+    for i in range(ys_test.shape[0]):
+        plt.imsave(dst_dir+'/test/'+str(i)+'_'+str(ys_test[i])+'.png', xs_test[i].reshape(32, 32, 3))
+    
+    os.mkdir(dst_dir+'/train')
+    for i in range(ys_train.shape[0]):
+        plt.imsave(dst_dir+'/train/'+str(i)+'_'+str(ys_train[i])+'.png', xs_train[i].reshape(32, 32, 3))
 
 def parse_img(filename, train=True, autoAug=True):
     img = Image.open(filename)

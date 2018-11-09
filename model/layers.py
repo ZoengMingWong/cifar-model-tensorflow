@@ -44,5 +44,5 @@ def linear(in_feat, out_classes, activation=False, use_bias=False, weight_decay=
     return full
 
 def batch_normalization(in_feat, training, name):
-    out_feat = tf.layers.batch_normalization(in_feat, epsilon=1e-5, momentum=0.1, training=training, name=name)
+    out_feat = tf.layers.batch_normalization(in_feat, epsilon=1e-5, momentum=0.9, training=training, name=name)
     return out_feat
