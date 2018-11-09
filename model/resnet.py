@@ -25,7 +25,7 @@ def PreActBlock(in_feat, stride, out_chans, is_training, block_id, weight_decay=
         short_cut = layers.conv2d(relu0, out_chans, kernel_size=[1, 1], strides=[stride]*2, padding='SAME', 
                                   activation=None, use_bias=False, weight_decay=weight_decay, name='Block_'+str(block_id)+'_short_cut_Conv')
     else:
-        short_cut = tf.identity(relu0, name='Block_'+str(block_id)+'_short_cut')
+        short_cut = tf.identity(in_feat, name='Block_'+str(block_id)+'_short_cut')
     
     out_feat = tf.add(short_cut, conv2, name='Block_'+str(block_id)+'_out_feat')
     
@@ -150,16 +150,20 @@ def BottleneckResNet(img, blocks, strides, chans, bottleneck, is_training, weigh
     for i in range(len(stride)):
         bottleneck *= stride[i]
         if preAct == True:
-            resBlock.append(PreActBottleneck(resBlock[-1], stride[i], bottleneck, is_training, block_id=i))
+            resBlock.append(PreActBottleneck(resBlock[-1], stride[i], bottleneck, is_training, block_id=i, weight_decay=weight_decay))
         else:
-            resBlock.append(Bottleneck(resBlock[-1], stride[i], bottleneck, is_training, block_id=i))
+            resBlock.append(Bottleneck(resBlock[-1], stride[i], bottleneck, is_training, block_id=i, weight_decay=weight_decay))
         
     global_avg = tf.reduce_mean(resBlock[-1], axis=[1, 2], name='global_avg_poolong')
     pred = layers.linear(global_avg, 10, activation=None, use_bias=True, weight_decay=weight_decay, name='prediction')
     
     return pred
-    
+
 def ResNet18(img, is_training, weight_decay=1e-4):
-    return ResNet(img, [2, 2, 2, 2], [1, 2, 2, 2], 64, is_training=is_training, weight_decay=weight_decay)
-def ResNet50(img, is_training, weight_decay):
-    return BottleneckResNet(img, [3, 4, 6, 3], [1, 2, 2, 2], 64, 64, is_training=is_training, weight_decay=weight_decay)
+    return ResNet(img, [2, 2, 2, 2], [1, 2, 2, 2], 64, is_training=is_training, weight_decay=weight_decay, preAct=False)    
+def PreResNet18(img, is_training, weight_decay=1e-4):
+    return ResNet(img, [2, 2, 2, 2], [1, 2, 2, 2], 64, is_training=is_training, weight_decay=weight_decay, preAct=True)
+def ResNet50(img, is_training, weight_decay=1e-4):
+    return BottleneckResNet(img, [3, 4, 6, 3], [1, 2, 2, 2], 64, 64, is_training=is_training, weight_decay=weight_decay, preAct=False)
+def PreResNet50(img, is_training, weight_decay=1e-4):
+    return BottleneckResNet(img, [3, 4, 6, 3], [1, 2, 2, 2], 64, 64, is_training=is_training, weight_decay=weight_decay, preAct=True)

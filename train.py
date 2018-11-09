@@ -139,10 +139,6 @@ if __name__ == '__main__':
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     
-    train_losses, train_acc = np.zeros([2, epochs])
-    val_losses, val_acc = np.zeros([2, epochs])
-    best_val = 0.0
-    
     with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
         sess.run(val_iter.initializer, feed_dict={val_x: xs_val, val_y: ys_val})
@@ -172,6 +168,9 @@ if __name__ == '__main__':
         xs, ys = np.stack(xs_batch), np.stack(ys_batch)
         #######################################################################
         
+        train_losses, train_err = np.zeros([2, epochs])
+        val_losses, val_err = np.zeros([2, epochs])
+        best_val = 0.0
         for e in range(epochs):
             
             if e == 100 or e == 150 or e == 180:
@@ -194,18 +193,18 @@ if __name__ == '__main__':
             for i in range(train_batches):
                 batch_time = time.time()
                 _, loss_i, label_i, pred_i = sess.run([train_op, loss, label, pred], feed_dict={train_flag: True, lr: learning_rate})
-                acc_batch = 100.0 * np.sum(np.argmax(pred_i, axis=1) == np.argmax(label_i, axis=1)) / train_batch_size
+                err_batch = 100.0 * np.sum(np.argmax(pred_i, axis=1) != np.argmax(label_i, axis=1)) / train_batch_size
                 
                 train_losses[e] += loss_i
-                train_acc[e] += acc_batch
+                train_err[e] += err_batch
                 
-                sys.stdout.write('Epoch {}: {} / {} batches.  Acc: {:.2f}  {:.2f}s   '.format(e+1, i+1, train_batches, acc_batch, time.time()-batch_time) + '\r')
+                sys.stdout.write('Epoch {}: {} / {} batches.  Error: {:.2f}  {:.2f}s   '.format(e+1, i+1, train_batches, err_batch, time.time()-batch_time) + '\r')
                 sys.stdout.flush()
                 
             train_losses[e] /= train_batches
-            train_acc[e] /= train_batches
+            train_err[e] /= train_batches
             print('')
-            print('Epoch {}: Train_loss = {:.3f}, Train_acc = {:.2f}'.format(e+1, train_losses[e], train_acc[e]))
+            print('Epoch {}: Train_loss = {:.3f}, Train_err = {:.2f}'.format(e+1, train_losses[e], train_err[e]))
             
             pool.join()
             a, b = result.get()
@@ -216,21 +215,21 @@ if __name__ == '__main__':
             # You'd better to set the val_bacth_size to a proper number so that all the samples could be tested.
             for i in range(val_batches):
                 loss_val, label_val, pred_val = sess.run([loss, label, pred], feed_dict={train_flag: False})
-                val_acc[e] += 100.0 * np.sum(np.argmax(pred_val, axis=1) == np.argmax(label_val, axis=1))
+                val_err[e] += 100.0 * np.sum(np.argmax(pred_val, axis=1) != np.argmax(label_val, axis=1))
                 val_losses[e] += loss_val
             val_losses[e] /= val_batches
-            val_acc[e] /= (val_batches * val_batch_size)
-            print('    Validation: Loss = {:.3f},   Val_acc = {:.2f}  ({} samples)'.format(val_losses[e], val_acc[e], 5000))
+            val_err[e] /= (val_batches * val_batch_size)
+            print('    Validation: Loss = {:.3f},   Val_err = {:.2f}  ({} samples)'.format(val_losses[e], val_err[e], val_size))
             print('')
             
-            if val_acc[e] > best_val and e > 50:
-                best_val = val_acc[e]
+            if val_err[e] > best_val and e > 50:
+                best_val = val_err[e]
                 saver.save(sess, 'ckpt/model', global_step=e+1, write_meta_graph=True)
         
         # Make a final checkpoint.
         saver.save(sess, 'ckpt/model-final', write_meta_graph=True)
         print('Training time: {:.2f}'.format(time.time() - begin))
-        util.save_training_result('ckpt/training_result', train_losses, train_acc, val_losses, val_acc)
+        util.save_training_result('ckpt/training_result', train_losses, train_err, val_losses, val_err)
         
     del(xs, xs_val, xs_train)
     util.test('ckpt/model-final.meta', 'ckpt/model-final', xs_test, ys_test)

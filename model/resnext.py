@@ -17,9 +17,8 @@ def PreActBlock(in_feat, stride, out_chans, bottleneck, cardinality, is_training
                           use_bias=False, weight_decay=weight_decay, name='Block_'+str(block_id)+'_conv1')
     bn1 = layers.batch_normalization(conv1, training=is_training, name='Block_'+str(block_id)+'_bn1')
     relu1 = tf.nn.relu(bn1, name='Block_'+str(block_id)+'_relu1')
-    '''
-        Group convolution
-    '''
+    
+    #Group convolution
     relu1_splits = tf.split(relu1, cardinality, axis=3, name='Block_'+str(block_id)+'_relu1_split')
     conv2 = []
     for i in range(cardinality):
