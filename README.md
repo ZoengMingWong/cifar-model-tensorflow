@@ -17,5 +17,5 @@ Pytorch implementation: https://github.com/facebookresearch/mixup-cifar10
 ### Cutout Augmentation
 Terrance DeVries, Graham W. Taylor. [Improved Regularization of Convolutional Neural Networks with Cutout](https://arxiv.org/abs/1708.04552v2). arXiv:1708.04552v2 [cs.CV] 29 Nov 2017.
 ### AutoAugmentation
-Ekin D. Cubuk, Barret Zoph, Dandelion Mane, Vijay Vasudevan, Quoc V. Le. [AutoAugment: Learning Augmentation Policies from Data](https://arxiv.org/abs/1805.09501v2). arXiv:1805.09501v2 [cs.CV] 9 Oct 2018.
+Ekin D. Cubuk, Barret Zoph, Dandelion Mane, Vijay Vasudevan, Quoc V. Le. [AutoAugment: Learning Augmentation Policies from Data](https://arxiv.org/abs/1805.09501v2). arXiv:1805.09501v2 [cs.CV] 9 Oct 2018. 
 Github: https://github.com/tensorflow/models/tree/master/research/autoaugment
