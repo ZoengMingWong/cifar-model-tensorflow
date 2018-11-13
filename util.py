@@ -13,6 +13,8 @@ import tensorflow as tf
 import numpy as np
 from model import ImageOperation, ImagePolicy
 
+np.random.seed(0)
+
 def cifar10_to_png(src_dir, dst_dir):
     import cPickle
     xs_train = []
@@ -43,13 +45,14 @@ def cifar10_to_png(src_dir, dst_dir):
 def parse_img(filename, train=True, autoAug=True):
     img = Image.open(filename)
     if train == True:
-        img = ImageOperation.pad_to_bounding_box(img, 4, 4, 40, 40)
-        img = ImageOperation.random_crop(img, size=[32, 32])
-        img = ImageOperation.random_flip_left_right(img)
         if autoAug == True:
             img = ImagePolicy.policy(img)
             img = ImageOperation.cutout(img, 16)
-    img = ImageOperation.per_image_standarization(img)
+        img = ImageOperation.pad_to_bounding_box(img, 4, 4, 40, 40)
+        img = ImageOperation.random_crop(img, size=[32, 32])
+        img = ImageOperation.random_flip_left_right(img)
+        
+    img = ImageOperation.image_standarization(img)
     return img
     
 def batch_parse(xs_batch, ys_batch, train=True, mixup_alpha=0.0, autoAug=True):
@@ -113,15 +116,15 @@ def save_training_result(file_name, train_loss, train_err, val_loss, val_err):
     
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
-    l1 = ax1.plot(range(epochs), train_loss, 'b--', label='train_loss')
-    l2 = ax1.plot(range(epochs), val_loss, 'r-', label='val_loss')
+    l1 = ax1.plot(range(epochs), train_loss, 'b--', label='train_loss', lw=1, alpha=0.8)
+    l2 = ax1.plot(range(epochs), val_loss, 'r-', label='val_loss', lw=1, alpha=0.8)
     ax1.set_ylim(0, 5)
     ax1.set_yticks(np.arange(0, 5, 0.5))
     ax1.grid(linestyle='--')
     
     ax2 = ax1.twinx()
-    l3 = ax2.plot(range(epochs), train_err, 'k--', label='train_error', lw=1)
-    l4 = ax2.plot(range(epochs), val_err, 'm-', label='val_error', lw=1)
+    l3 = ax2.plot(range(epochs), train_err, 'k--', label='train_error')
+    l4 = ax2.plot(range(epochs), val_err, 'm-', label='val_error')
     ax2.set_ylim(0, 50)
     ax2.set_yticks(np.arange(0, 50, 5))
     

@@ -19,15 +19,15 @@ ops = {'ShearX': ImOps.shearX,          'ShearY': ImOps.shearY,
        'Invert': ImOps.invert,          'Equalize': ImOps.equalize}
            
 rangeMag = {'ShearX': [-0.3, 0.3],      'ShearY': [-0.3, 0.3], 
-            'TranslateX': [-0.45, 0.45],  'TranslateY': [-0.45, 0.45], 
+            'TranslateX': [-10, 10],  'TranslateY': [-10, 10], 
             'Rotate': [-30, 30],        'Solarize': [0, 256], 
             'Posterize': [4, 8],        'Contrast': [0.1, 1.9],
             'Color': [0.1, 1.9],        'Brightness': [0.1, 1.9], 
-            'Sharpness': [0.1, 1.9],    'Cutout': [0, 60], 
+            'Sharpness': [0.1, 1.9],    'Cutout': [0, 20], 
             'AutoContrast': [0, 0],     'Invert': [0, 0],   'Equalize': [0, 0]}
             
 intMag = { 'ShearX': False,         'ShearY': False, 
-           'TranslateX': False,      'TranslateY': False, 
+           'TranslateX': True,      'TranslateY': True, 
            'Rotate': False,         'Solarize': True, 
            'Posterize': True,       'Contrast': False,
            'Color': False,          'Brightness': False, 

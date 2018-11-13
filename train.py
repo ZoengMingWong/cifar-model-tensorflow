@@ -10,7 +10,7 @@ from tensorflow import data
 import numpy as np
 import os, sys, time
 from multiprocessing import Pool
-from model import resnet, resnext, wideResnet
+from model import layers, resnet, resnext, wideResnet
 import util
 
 os.environ['CUDA_DEVICES_ORDER'] = 'PCI_BUS_ID'
@@ -19,30 +19,46 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 if __name__ == '__main__':
     
-    xs_train = np.array(['/home/hzm/cifar_data/train/' + f for f in os.listdir('/home/hzm/cifar_data/train/')])
-    ys_train = np.array([int(f[-5]) for f in os.listdir('/home/hzm/cifar_data/train/')])
-    xs_test = np.array(['/home/hzm/cifar_data/test/' + f for f in os.listdir('/home/hzm/cifar_data/test/')])
-    ys_test = np.array([int(f[-5]) for f in os.listdir('/home/hzm/cifar_data/test/')])
+    # Loading the dataset. Be careful that here I have saved the original dataset to .png pitures, 
+    # and the program decodes the pictures while needed.
+    data_path = '/home/hzm/cifar_data'
+    xs_train = np.array([data_path + '/train/' + f for f in os.listdir(data_path + '/train/')])
+    ys_train = np.array([int(f[-5]) for f in os.listdir(data_path + '/train/')])
+    xs_test = np.array([data_path + '/test/' + f for f in os.listdir(data_path + '/test/')])
+    ys_test = np.array([int(f[-5]) for f in os.listdir(data_path + '/test/')])
     
+    # Below are some typical models in papers, you can define some other models yourself.
     model_dict = {'PreResNet18':resnet.ResNet18, 'PreResNet50':resnet.PreResNet50, 
                   'PreResNeXt29_32x4d':resnext.ResNeXt29_32x4d, 
                   'WRN_28_10':wideResnet.WRN_28_10, 'WRN_16_4':wideResnet.WRN_16_4}
     
     # Set the parameter.
     net = model_dict['PreResNet18']
+    classes = 10
     epochs = 200
-    learning_rate = 0.1
-    weight_decay = 5e-4
+    init_lr = 0.1
+    # learning_rate should be callable function with the EPOCH as its input parameter.
+    learning_rate = lambda e: init_lr if e < 100 else (init_lr / 10) if e < 150 else (init_lr / 100)
+    weight_decay = 1e-4
     grad_clip = 5.0
     
+    # Below are some augment methods. Set MIXUP_ALPHA to zero to disable the mixup augmentation, 
+    # and a non-zero float number represents the alpha (here equal to beta) of the BETA distribution.
+    # Set AUTOAUGMENT to TRUE to enable the auto-Augmentation introduced by Google.
+    # Set mixup_alpha = 0 and autoAugment = False to use the baseline augment methods.
     mixup_alpha = 1.0
-    autoAugment = True
+    autoAugment = False
     
     val_ratio = 0.1
     train_batch_size = 128
     val_batch_size = 100
     optimizer = tf.train.MomentumOptimizer
+    # Set the parameters of the MomentumOptimizer
+    momentum = 0.9
     use_nesterov = True
+    
+    save_optim = False
+    np.random.seed(0)
     
     val_size = int(ys_train.shape[0] * val_ratio)
     val_batches = val_size // val_batch_size
@@ -78,12 +94,12 @@ if __name__ == '__main__':
     tf.reset_default_graph()
     
     train_x = tf.placeholder(tf.float32, shape=[None, 32, 32, 3], name='train_x')
-    train_y = tf.placeholder(tf.float32, shape=[None, 10], name='train_y')
+    train_y = tf.placeholder(tf.float32, shape=[None, classes], name='train_y')
     train_set = data.Dataset.from_tensor_slices((train_x, train_y)).batch(train_batch_size)
     train_iter = train_set.make_initializable_iterator()
     
     val_x = tf.placeholder(tf.float32, shape=[None, 32, 32, 3], name='val_x')
-    val_y = tf.placeholder(tf.float32, shape=[None, 10], name='val_y')
+    val_y = tf.placeholder(tf.float32, shape=[None, classes], name='val_y')
     val_set = data.Dataset.from_tensor_slices((val_x, val_y)).batch(val_batch_size).repeat()
     val_iter = val_set.make_initializable_iterator()
     
@@ -92,19 +108,23 @@ if __name__ == '__main__':
     train_flag = tf.placeholder(tf.bool, shape=[], name='training_flag')
     img, label = tf.cond(train_flag, train_iter.get_next, val_iter.get_next, name='dataset_selector')
     
-    pred = net(img, train_flag, weight_decay=weight_decay)
+    global_avg = net(img, train_flag)
+    pred = layers.linear(global_avg, classes, activation=None, use_bias=True, name='prediction')
     
     loss_no_reg = tf.losses.softmax_cross_entropy(label, pred)
-    
-    tf.add_to_collection('losses', loss_no_reg)
-    loss = tf.add_n(tf.get_collection('losses'), name='total_loss_reg')
+    # Apply the weight decay.
+    reg_loss = []
+    for var in tf.trainable_variables():
+        reg_loss.append(tf.nn.l2_loss(var))
+    loss = tf.add(loss_no_reg, tf.multiply(weight_decay, tf.add_n(reg_loss)), name='loss_with_reg')
     
     lr = tf.placeholder(tf.float32, shape=[], name='lr')
     if optimizer is tf.train.MomentumOptimizer:
-        optim = optimizer(lr, momentum=0.9, use_nesterov=use_nesterov)
+        optim = optimizer(lr, momentum=momentum, use_nesterov=use_nesterov)
     else:
         optim = optimizer(lr)
     
+    # Apply the backpropagation with gradient clipping.
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     with tf.control_dependencies(update_ops):
         grads, variables = zip(*optim.compute_gradients(loss))
@@ -130,7 +150,8 @@ if __name__ == '__main__':
         retrain the model with checkpoints, or you want to train the model with a new optimizer,
         just comment the statement below.
     '''
-    #var_list += optim.variables()
+    if save_optim == True:
+        var_list += optim.variables()
     
     '''
         As the 'moving_mean' and 'moving_variance' (necessary for the inference in batch normalization) 
@@ -186,9 +207,6 @@ if __name__ == '__main__':
         best_val = 100.0
         for e in range(epochs):
             
-            if e == 80 or e == 140 or e == 180:
-                learning_rate /= 10
-                
             sess.run(train_iter.initializer, feed_dict={train_x: xs, train_y: ys})
             
             ###################################################################
@@ -205,7 +223,7 @@ if __name__ == '__main__':
             
             for i in range(train_batches):
                 batch_time = time.time()
-                _, loss_i, label_i, pred_i = sess.run([train_op, loss, label, pred], feed_dict={train_flag: True, lr: learning_rate})
+                _, loss_i, label_i, pred_i = sess.run([train_op, loss, label, pred], feed_dict={train_flag: True, lr: learning_rate(e)})
                 err_batch = 100.0 * np.sum(np.argmax(pred_i, axis=1) != np.argmax(label_i, axis=1)) / train_batch_size
                 
                 train_losses[e] += loss_i

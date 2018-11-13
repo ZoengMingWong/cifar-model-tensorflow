@@ -17,24 +17,32 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 if __name__ == '__main__':
     
-    xs_train = np.array(['/home/hzm/cifar_data/train/' + f for f in os.listdir('/home/hzm/cifar_data/train/')])
-    ys_train = np.array([int(f[-5]) for f in os.listdir('/home/hzm/cifar_data/train/')])
+    data_path = '/home/hzm/cifar_data'
+    xs_train = np.array([data_path + '/train/' + f for f in os.listdir(data_path + '/train/')])
+    ys_train = np.array([int(f[-5]) for f in os.listdir(data_path + '/train/')])
     
     ckpt_meta = 'ckpt/model-final.meta'
     ckpt = 'ckpt/model-final'
     
     epochs = 200
-    learning_rate = 0.1
+    init_lr = 0.1
+    learning_rate = lambda e: init_lr if e < 100 else (init_lr / 10) if e < 150 else (init_lr / 100)
     grad_clip = 5.0
     
     mixup_alpha = 1.0
-    autoAugment = True
+    autoAugment = False
     
     val_ratio = 0.1
     train_batch_size = 128
     val_batch_size = 100
+    
+    # You can set the optimizer to None to use the original ones to train the model, 
+    # however, the checkpoint must contain the variables of the optimizer, 
+    # which may result in a checkpoint with somewhat large size.
     optimizer = tf.train.MomentumOptimizer
+    momentum = 0.9
     use_nesterov = True
+    np.random.seed(0)
     
     val_size = int(ys_train.shape[0] * val_ratio)
     val_batches = val_size // val_batch_size
@@ -153,9 +161,6 @@ if __name__ == '__main__':
         best_val = 100.0
         for e in range(epochs):
             
-            if e == 60 or e == 120 or e == 160:
-                learning_rate /= 5.0
-                
             ###################################################################
             # Augment the training data every epoch by another process to save time.
             sess.run(train_iter_initializer, feed_dict={train_x: xs, train_y: ys})
@@ -169,7 +174,7 @@ if __name__ == '__main__':
             
             for i in range(train_batches):
                 batch_time = time.time()
-                _, loss_i, label_i, pred_i = sess.run([train_op, loss, label, pred], feed_dict={train_flag: True, lr: learning_rate})
+                _, loss_i, label_i, pred_i = sess.run([train_op, loss, label, pred], feed_dict={train_flag: True, lr: learning_rate(e)})
                 err_batch = 100.0 * np.sum(np.argmax(pred_i, axis=1) != np.argmax(label_i, axis=1)) / train_batch_size
                 
                 train_losses[e] += loss_i

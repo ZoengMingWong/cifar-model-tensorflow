@@ -13,7 +13,8 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 if __name__ == '__main__':
     
-    xs_test = np.array(['/home/hzm/cifar_data/test/' + f for f in os.listdir('/home/hzm/cifar_data/test/')])
-    ys_test = np.array([int(f[-5]) for f in os.listdir('/home/hzm/cifar_data/test/')])
+    data_path = '/home/hzm/cifar_data'
+    xs_test = np.array([data_path + '/test/' + f for f in os.listdir(data_path + '/test/')])
+    ys_test = np.array([int(f[-5]) for f in os.listdir(data_path + '/test/')])
     
-    util.test('ckpt1/model-final.meta', 'ckpt1/model-fianl', xs_test, ys_test)
+    util.test('ckpt/model-final.meta', 'ckpt/model-fianl', xs_test, ys_test)
