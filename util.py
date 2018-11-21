@@ -6,7 +6,7 @@ Created on Mon Nov  5 09:53:59 2018
 """
 
 from __future__ import print_function
-import os
+import os, time
 from PIL import  Image
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -15,7 +15,12 @@ from model import ImageOperation, ImagePolicy
 
 np.random.seed(0)
 
-def cifar10_to_png(src_dir, dst_dir):
+def cifar10_to_png(src_dir, dst_dir=None):
+    """
+    Encode the orignal cifar10 dataset to PNG images, and we can parse the label
+    from the filename, e.g. train0_6.png indicates the first training image's label is 6.
+    It is memory efficient if we can dynamically decode the images while needed.
+    """
     import cPickle
     xs_train = []
     ys_train = []
@@ -33,6 +38,8 @@ def cifar10_to_png(src_dir, dst_dir):
     xs_train = np.hstack(tuple([xs_train[:, i::1024] for i in range(1024)]))
     ys_train = np.array(ys_train)
     
+    if dst_dir is None:
+        dst_dir = src_dir
     os.mkdir(dst_dir)
     os.mkdir(dst_dir+'/test')
     for i in range(ys_test.shape[0]):
@@ -41,6 +48,13 @@ def cifar10_to_png(src_dir, dst_dir):
     os.mkdir(dst_dir+'/train')
     for i in range(ys_train.shape[0]):
         plt.imsave(dst_dir+'/train/'+str(i)+'_'+str(ys_train[i])+'.png', xs_train[i].reshape(32, 32, 3))
+    return None
+    
+def parse_time(sec):
+    h = int(sec // 3600)
+    m = int(sec % 3600 // 60)
+    s = sec % 60
+    return h, m, s
 
 def parse_img(filename, train=True, autoAug=True):
     img = Image.open(filename)
@@ -89,17 +103,19 @@ def test(ckpt_meta, ckpt, xs_test, ys_test, test_batch_size=100):
         saver.restore(sess, ckpt)
         
         graph = tf.get_default_graph()
-        val_x = graph.get_operation_by_name('val_x').outputs[0]
-        val_y = graph.get_operation_by_name('val_y').outputs[0]
+        xs = graph.get_operation_by_name('xs').outputs[0]
+        ys = graph.get_operation_by_name('ys').outputs[0]
+        batch_size = graph.get_operation_by_name('batch_size').outputs[0]
         train_flag = graph.get_operation_by_name('training_flag').outputs[0]
         
         label = tf.get_collection('batch_label')[0]
         pred = tf.get_collection('pred')[0]
         loss = tf.get_collection('loss')[0]
-        val_iter_initializer = tf.get_collection('val_iter_initializer')[0]
+        data_loader_initializer = tf.get_collection('data_loader_initializer')[0]
         
         print('Testing ......')
-        sess.run(val_iter_initializer, feed_dict={val_x: xs_test, val_y: ys_test})
+        begin = time.time()
+        sess.run(data_loader_initializer, feed_dict={xs: xs_test, ys: ys_test, batch_size: test_batch_size})
         losses_test, err_test = 0., 0.
         test_batches = ys_test.shape[0] // test_batch_size
         for i in range(test_batches):
@@ -109,6 +125,8 @@ def test(ckpt_meta, ckpt, xs_test, ys_test, test_batch_size=100):
         losses_test /= test_batches
         err_test /= (test_batches * test_batch_size)
         print('Test: Loss = {:.3f}, Test_err = {:.2f}'.format(losses_test, err_test))
+        print('Time has passed {:.2f}s.'.format(time.time()-begin))
+    return None
 
 def save_training_result(file_name, train_loss, train_err, val_loss, val_err):
         
@@ -142,9 +160,10 @@ def save_training_result(file_name, train_loss, train_err, val_loss, val_err):
     for e in range(epochs):
         print('', file=model)
         print('Epoch {}: Train_loss = {:.3f}, Train_err = {:.2f}'.format(e+1, train_loss[e], train_err[e]), file=model)
-        print('    Validation: Loss = {:.3f},   Val_err = {:.2f}'.format(val_loss[e], val_err[e]), file=model)
+        print('Epoch {}:   Val_loss = {:.3f},   Val_err = {:.2f}'.format(e+1, val_loss[e], val_err[e]), file=model)
         print('', file=model)
     model.close()
+    return None
     
     
 

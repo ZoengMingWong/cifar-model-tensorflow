@@ -8,39 +8,45 @@ from __future__ import division, print_function
 import tensorflow as tf
 from tensorflow import data
 import numpy as np
-import os, sys, time
+import os, sys, time, re
 from multiprocessing import Pool
-from model import layers, resnet, resnext, wideResnet
+from model import layers, resnet, resnext, wideResnet, pyramidNet
 import util
 
 os.environ['CUDA_DEVICES_ORDER'] = 'PCI_BUS_ID'
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
+# Below are some typical models in papers, you can define some other models yourself.
+model_dict = {'ResNet18': resnet.ResNet18, 'PreResNet18': resnet.PreResNet18, 
+              'ResNet50': resnet.ResNet50, 'PreResNet50': resnet.PreResNet50, 
+              'PreResNeXt29_32x4d': resnext.ResNeXt29_32x4d, 
+              'WRN_28_10': wideResnet.WRN_28_10, 'WRN_16_4': wideResnet.WRN_16_4,
+              'PyramidNet_a48_d110': pyramidNet.PyramidNet_a48_d110, 
+              'BotPyramidNet_a270_d164': pyramidNet.BotPyramidNet_a270_d164}
+
 
 if __name__ == '__main__':
     
-    # Loading the dataset. Be careful that here I have saved the original dataset to .png pitures, 
-    # and the program decodes the pictures while needed.
-    data_path = '/home/hzm/cifar_data'
-    xs_train = np.array([data_path + '/train/' + f for f in os.listdir(data_path + '/train/')])
-    ys_train = np.array([int(f[-5]) for f in os.listdir(data_path + '/train/')])
-    xs_test = np.array([data_path + '/test/' + f for f in os.listdir(data_path + '/test/')])
-    ys_test = np.array([int(f[-5]) for f in os.listdir(data_path + '/test/')])
-    
-    # Below are some typical models in papers, you can define some other models yourself.
-    model_dict = {'PreResNet18':resnet.ResNet18, 'PreResNet50':resnet.PreResNet50, 
-                  'PreResNeXt29_32x4d':resnext.ResNeXt29_32x4d, 
-                  'WRN_28_10':wideResnet.WRN_28_10, 'WRN_16_4':wideResnet.WRN_16_4}
-    
-    # Set the parameter.
-    net = model_dict['PreResNet18']
-    classes = 10
-    epochs = 200
-    init_lr = 0.1
-    # learning_rate should be callable function with the EPOCH as its input parameter.
+    data_path = '/home/hzm/cifar_data'  # data path
+    net = model_dict['PreResNet18']     # model to use
+    classes = 10                        # total classes of the label
+    epochs = 200                        # epochs to train
+    init_lr = 0.1                       # initial learning rate
+    # learning_rate should be a callable function with the EPOCH as its input parameter.
     learning_rate = lambda e: init_lr if e < 100 else (init_lr / 10) if e < 150 else (init_lr / 100)
-    weight_decay = 1e-4
-    grad_clip = 5.0
+    
+    optimizer = tf.train.MomentumOptimizer  # the optimizer to use, as you please
+    weight_decay = 1e-4                 # weight decay with L2 regularization
+    grad_clip = 5.0                     # gradient clipping to avoid exploration
+    
+    zero_pad = True                     # whether zero-padding or 1x1 conv for the shortcut mapping
+    momentum = 0.9                      # the momentuum Momentum optimizer
+    use_nesterov = True                 # whether use the Nesterov Momentum
+    save_optim = False                  # whether save the variables of the optimizer while making a checkpoint
+    
+    val_ratio = 0.1                     # take a part of the traing set to apply validation
+    train_batch_size = 128              # batch size of the training set
+    val_batch_size = 100                # batch size of the validating set
     
     # Below are some augment methods. Set MIXUP_ALPHA to zero to disable the mixup augmentation, 
     # and a non-zero float number represents the alpha (here equal to beta) of the BETA distribution.
@@ -49,16 +55,11 @@ if __name__ == '__main__':
     mixup_alpha = 1.0
     autoAugment = False
     
-    val_ratio = 0.1
-    train_batch_size = 128
-    val_batch_size = 100
-    optimizer = tf.train.MomentumOptimizer
-    # Set the parameters of the MomentumOptimizer
-    momentum = 0.9
-    use_nesterov = True
-    
-    save_optim = False
     np.random.seed(0)
+    xs_train = np.array([data_path + '/train/' + f for f in os.listdir(data_path + '/train/')])
+    ys_train = np.array([int(re.split('[_.]', f)[1]) for f in os.listdir(data_path + '/train/')])
+    xs_test = np.array([data_path + '/test/' + f for f in os.listdir(data_path + '/test/')])
+    ys_test = np.array([int(re.split('[_.]', f)[1]) for f in os.listdir(data_path + '/test/')])
     
     val_size = int(ys_train.shape[0] * val_ratio)
     val_batches = val_size // val_batch_size
@@ -82,42 +83,49 @@ if __name__ == '__main__':
     pool.close()
     pool.join()
     
-    xs_batch, ys_batch = [], []
+    xs_val, ys_val = [], []
     for result in results:
         a, b = result.get()
-        xs_batch.extend(a)
-        ys_batch.extend(b)
-    xs_val, ys_val = np.stack(xs_batch), np.stack(ys_batch)
+        xs_val.extend(a)
+        ys_val.extend(b)
+    xs_val, ys_val = np.stack(xs_val), np.stack(ys_val)
+    del (results, result, a, b)
     ###########################################################################
     
-    # Setup the datasets.
+    """
+    ---------------------------------------------------------------------------
+    Setup the network.
+    ---------------------------------------------------------------------------
+    """
     tf.reset_default_graph()
     
-    train_x = tf.placeholder(tf.float32, shape=[None, 32, 32, 3], name='train_x')
-    train_y = tf.placeholder(tf.float32, shape=[None, classes], name='train_y')
-    train_set = data.Dataset.from_tensor_slices((train_x, train_y)).batch(train_batch_size)
-    train_iter = train_set.make_initializable_iterator()
+    # Feed the data with tf.data.Dataset.
+    xs = tf.placeholder(tf.float32, shape=[None, 32, 32, 3], name='xs')
+    ys = tf.placeholder(tf.float32, shape=[None, classes], name='ys')
+    batch_size = tf.placeholder(tf.int64, shape=[], name='batch_size')
+    dataset = data.Dataset.from_tensor_slices((xs, ys)).batch(batch_size)
+    data_loader = dataset.make_initializable_iterator()
     
-    val_x = tf.placeholder(tf.float32, shape=[None, 32, 32, 3], name='val_x')
-    val_y = tf.placeholder(tf.float32, shape=[None, classes], name='val_y')
-    val_set = data.Dataset.from_tensor_slices((val_x, val_y)).batch(val_batch_size).repeat()
-    val_iter = val_set.make_initializable_iterator()
-    
-    ###########################################################################
-    # Setup the network
+    # Distinguish the training and testing states for BN and dropout.
     train_flag = tf.placeholder(tf.bool, shape=[], name='training_flag')
-    img, label = tf.cond(train_flag, train_iter.get_next, val_iter.get_next, name='dataset_selector')
+    img, label = data_loader.get_next(name='batch_loader')
     
-    global_avg = net(img, train_flag)
+    # The output of the Conv network, the last layer is a global average pooling operation.
+    global_avg = net(img, train_flag, zero_pad=zero_pad)
+    # Fully connected layer WITHOUT softmax activation.
     pred = layers.linear(global_avg, classes, activation=None, use_bias=True, name='prediction')
-    
+    # Loss without regularization.
     loss_no_reg = tf.losses.softmax_cross_entropy(label, pred)
-    # Apply the weight decay.
+    # Add the Loss with L2 regularization.
     reg_loss = []
+    params = 0
     for var in tf.trainable_variables():
-        reg_loss.append(tf.nn.l2_loss(var))
+        if 'weight' in var.name:
+            reg_loss.append(tf.nn.l2_loss(var))
+            params += np.prod(var.get_shape().as_list())
     loss = tf.add(loss_no_reg, tf.multiply(weight_decay, tf.add_n(reg_loss)), name='loss_with_reg')
     
+    # Define the optimizer.
     lr = tf.placeholder(tf.float32, shape=[], name='lr')
     if optimizer is tf.train.MomentumOptimizer:
         optim = optimizer(lr, momentum=momentum, use_nesterov=use_nesterov)
@@ -130,43 +138,38 @@ if __name__ == '__main__':
         grads, variables = zip(*optim.compute_gradients(loss))
         grads, global_norm = tf.clip_by_global_norm(grads, grad_clip)
         train_op = optim.apply_gradients(zip(grads, variables))
-    ###########################################################################
     
-    ###########################################################################
-    # Config the saver to save the necessary variables
+    """
+    ---------------------------------------------------------------------------
+    Gather the variables to make a checkpoint.
+    ---------------------------------------------------------------------------
+    """
     tf.add_to_collection('batch_label', label)
     tf.add_to_collection('pred', pred)
     tf.add_to_collection('loss', loss)
     tf.add_to_collection('train_op', train_op)
-    tf.add_to_collection('train_iter_initializer', train_iter.initializer)
-    tf.add_to_collection('val_iter_initializer', val_iter.initializer)
+    tf.add_to_collection('data_loader_initializer', data_loader.initializer)
     
+    # The trainable variables like weights and biases.
     var_list = tf.trainable_variables()
-    '''
-        To continue traing with a checkpoint in the future, we must save the state of the optimizer, 
-        or it would occur some errors as 'tf.Saver()' wouldn't save these variables by defalut.
-        
-        However, the size of these variables would be somewhat large, if you have no need to 
-        retrain the model with checkpoints, or you want to train the model with a new optimizer,
-        just comment the statement below.
-    '''
+    # Variables of the optimizer, note that the size is somewhat large to save, 
+    # you can redefine an optimizer if you want to retrain the model with a checkpoint.
     if save_optim == True:
         var_list += optim.variables()
     
-    '''
-        As the 'moving_mean' and 'moving_variance' (necessary for the inference in batch normalization) 
-        are not the trainable variables, we should fetch them from the global variables.
-    '''
+    # As the 'moving_mean' and 'moving_variance' (necessary for the inference in batch normalization) 
+    # are not the trainable variables, we should fetch them from the global variables.
     global_var = tf.global_variables()
     moving_vars = [g for g in global_var if 'moving_mean' in g.name]
     moving_vars += [g for g in global_var if 'moving_variance' in g.name]
     var_list += moving_vars
     
     saver = tf.train.Saver(var_list=var_list, max_to_keep=5)
-    ###########################################################################
         
     """
-        Config the devices and start training.
+    ---------------------------------------------------------------------------
+    Config the devices and start training.
+    ---------------------------------------------------------------------------
     """
     
     config = tf.ConfigProto()
@@ -174,31 +177,32 @@ if __name__ == '__main__':
     
     with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
-        sess.run(val_iter.initializer, feed_dict={val_x: xs_val, val_y: ys_val})
         
         #######################################################################
         # Augment the training data with multiprocess.
         print('Data preparing ...')
         procs = 5
-        xs = np.split(xs_train[:(xs_train.shape[0] // procs * procs)], procs)
-        ys = np.split(ys_train[:(ys_train.shape[0] // procs * procs)], procs)
+        xs_train1 = np.split(xs_train[:(xs_train.shape[0] // procs * procs)], procs)
+        ys_train1 = np.split(ys_train[:(ys_train.shape[0] // procs * procs)], procs)
         
         pool = Pool(procs)
         results = []
         for i in range(procs):
-            results.append(pool.apply_async(util.batch_parse, (xs[i], ys[i], True, mixup_alpha, autoAugment, )))
+            results.append(pool.apply_async(util.batch_parse, (xs_train1[i], ys_train1[i], True, mixup_alpha, autoAugment, )))
         pool.close()
         pool.join()
         
-        xs_batch, ys_batch = [], []
+        xs_train1, ys_train1 = [], []
         for result in results:
             a, b = result.get()
-            xs_batch.extend(a)
-            ys_batch.extend(b)
-        xs, ys = np.stack(xs_batch), np.stack(ys_batch)
+            xs_train1.extend(a)
+            ys_train1.extend(b)
+        xs_train1, ys_train1 = np.stack(xs_train1), np.stack(ys_train1)
+        del (pool, results, result, a, b)
         #######################################################################
         
         print('Training ...')
+        print('Trainable parameters: {}'.format(params))
         begin = time.time()
         
         rnd_samples = np.arange(ys_train.shape[0])
@@ -207,17 +211,20 @@ if __name__ == '__main__':
         best_val = 100.0
         for e in range(epochs):
             
-            sess.run(train_iter.initializer, feed_dict={train_x: xs, train_y: ys})
-            
+            """
+            -------------------------------------------------------------------
+            Training stage.
+            -------------------------------------------------------------------
+            """
+            sess.run(data_loader.initializer, feed_dict={xs: xs_train1, ys: ys_train1, batch_size: train_batch_size})
             ###################################################################
             # Augment the training data every epoch, 
             # and do it with another process to save time.
-            
             np.random.shuffle(rnd_samples)
             xs_train, ys_train = xs_train[rnd_samples], ys_train[rnd_samples]
             
             pool = Pool(1)
-            result = pool.apply_async(util.batch_parse, (xs_train, ys_train, True, mixup_alpha, autoAugment))
+            result = pool.apply_async(util.batch_parse, (xs_train, ys_train, True, mixup_alpha, autoAugment, ))
             pool.close()
             ###################################################################
             
@@ -240,20 +247,31 @@ if __name__ == '__main__':
             
             pool.join()
             a, b = result.get()
-            xs, ys = np.stack(a), np.stack(b)
+            xs_train1, ys_train1 = np.stack(a), np.stack(b)
+            del (pool, result, a, b)
             
-            ###################################################################
-            # Make the validation per epoch to trace the model performance.
-            # You'd better to set the val_bacth_size to a proper number so that all the samples could be tested.
+            """
+            -------------------------------------------------------------------
+            Validation stage.
+            -------------------------------------------------------------------
+            """
+            val_time = time.time()
+            sess.run(data_loader.initializer, feed_dict={xs: xs_val, ys: ys_val, batch_size: val_batch_size})
             for i in range(val_batches):
                 loss_val, label_val, pred_val = sess.run([loss, label, pred], feed_dict={train_flag: False})
                 val_err[e] += 100.0 * np.sum(np.argmax(pred_val, axis=1) != np.argmax(label_val, axis=1))
                 val_losses[e] += loss_val
             val_losses[e] /= val_batches
             val_err[e] /= (val_batches * val_batch_size)
-            print('    Validation: Loss = {:.3f},   Val_err = {:.2f}  ({} samples)'.format(val_losses[e], val_err[e], val_size))
+            
+            cur_time = time.time()
+            h, m, s = util.parse_time(cur_time - begin)
+            print('Epoch {}:   Val_loss = {:.3f},   Val_err = {:.2f}  ({} samples)  {:.2f}s   '.format(
+                                        e+1, val_losses[e], val_err[e], val_size, cur_time-val_time))
+            print('Global time has passed {}:{}:{:.2f}'.format(h, m, s))
             print('')
             
+            # Make a checkpoint.
             if val_err[e] < best_val and e > 50:
                 best_val = val_err[e]
                 saver.save(sess, 'ckpt/model', global_step=e+1, write_meta_graph=True)
@@ -263,7 +281,7 @@ if __name__ == '__main__':
         print('Training time: {:.2f}'.format(time.time() - begin))
         util.save_training_result('ckpt/training_result', train_losses, train_err, val_losses, val_err)
         
-    del(xs, xs_val, xs_train)
+    del(xs_train1, xs_val, xs_train)
     util.test('ckpt/model-final.meta', 'ckpt/model-final', xs_test, ys_test)
 
 

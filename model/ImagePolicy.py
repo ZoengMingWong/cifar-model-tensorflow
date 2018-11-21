@@ -35,13 +35,132 @@ intMag = { 'ShearX': False,         'ShearY': False,
            'AutoContrast': False, 
            'Invert': False,         'Equalize': False}
 
+exp0_0 = [[('Invert', 0.1, 7),          ('Contrast', 0.2, 6)],
+          [('Rotate', 0.7, 2),          ('TranslateX', 0.3, 9)],
+          [('Sharpness', 0.8, 1),       ('Sharpness', 0.9, 3)],
+          [('ShearY', 0.5, 8),          ('TranslateY', 0.7, 9)],
+          [('AutoContrast', 0.5, 8),    ('Equalize', 0.9, 2)]]
+          
+exp0_1 = [[('Solarize', 0.4, 5),        ('AutoContrast', 0.9, 3)],
+          [('TranslateY', 0.9, 9),      ('TranslateY', 0.7, 9)],
+          [('AutoContrast', 0.9, 2),    ('Solarize', 0.8, 3)],
+          [('Equalize', 0.8, 8),        ('Invert', 0.1, 3)],
+          [('TranslateY', 0.7, 9),      ('AutoContrast', 0.9, 1)]]
+          
+exp0_2 = [[('Solarize', 0.4, 5),        ('AutoContrast', 0.0, 2)],
+          [('TranslateY', 0.7, 9),      ('TranslateY', 0.7, 9)],
+          [('AutoContrast', 0.9, 0),    ('Solarize', 0.4, 3)],
+          [('Equalize', 0.7, 5),        ('Invert', 0.1, 3)],
+          [('TranslateY', 0.7, 9),      ('TranslateY', 0.7, 9)]]
+          
+exp0_3 = [[('Solarize', 0.4, 5),        ('AutoContrast', 0.9, 1)],
+          [('TranslateY', 0.8, 9),      ('TranslateY', 0.9, 9)],
+          [('AutoContrast', 0.8, 0),    ('TranslateY', 0.7, 9)],
+          [('TranslateY', 0.2, 7),      ('Color', 0.9, 6)],
+          [('Equalize', 0.7, 6),        ('Color', 0.4, 9)]]
+
+exp1_0 = [[('ShearY', 0.2, 7),          ('Posterize', 0.3, 7)],
+          [('Color', 0.4, 3),           ('Brightness', 0.6, 7)],
+          [('Sharpness', 0.3, 9),       ('Brightness', 0.7, 9)],
+          [('Equalize', 0.6, 5),        ('Equalize', 0.5, 1)],
+          [('Contrast', 0.6, 7),        ('Sharpness', 0.6, 5)]]
+
+exp1_1 = [[('Brightness', 0.3, 7),      ('AutoContrast', 0.5, 8)],
+          [('AutoContrast', 0.9, 4),    ('AutoContrast', 0.5, 6)],
+          [('Solarize', 0.3, 5),        ('Equalize', 0.6, 5)],
+          [('TranslateY', 0.2, 4),      ('Sharpness', 0.3, 3)],
+          [('Brightness', 0.0, 8),      ('Color', 0.8, 8)]]
+
+exp1_2 = [[('Solarize', 0.2, 6),        ('Color', 0.8, 6)],
+          [('Solarize', 0.2, 6),        ('AutoContrast', 0.8, 1)],
+          [('Solarize', 0.4, 1),        ('Equalize', 0.6, 5)],
+          [('Brightness', 0.0, 0),      ('Solarize', 0.5, 2)],
+          [('AutoContrast', 0.9, 5),    ('Brightness', 0.5, 3)]]
+
+exp1_3 = [[('Contrast', 0.7, 5),        ('Brightness', 0.0, 2)],
+          [('Solarize', 0.2, 8),        ('Solarize', 0.1, 5)],
+          [('Contrast', 0.5, 1),        ('TranslateY', 0.2, 9)],
+          [('AutoContrast', 0.6, 5),    ('TranslateY', 0.0, 9)],
+          [('AutoContrast', 0.9, 4),    ('Equalize', 0.8, 4)]]
+
+exp1_4 = [[('Brightness', 0.0, 7),      ('Equalize', 0.4, 7)],
+          [('Solarize', 0.2, 5),        ('Equalize', 0.7, 5)],
+          [('Equalize', 0.6, 8),        ('Color', 0.6, 2)],
+          [('Color', 0.3, 7),           ('Color', 0.2, 4)],
+          [('AutoContrast', 0.5, 2),    ('Solarize', 0.7, 2)]]
+
+exp1_5 = [[('AutoContrast', 0.2, 0),    ('Equalize', 0.1, 0)],
+          [('ShearY', 0.6, 5),          ('Equalize', 0.6, 5)],
+          [('Brightness', 0.9, 3),      ('AutoContrast', 0.4, 1)],
+          [('Equalize', 0.8, 8),        ('Equalize', 0.7, 7)],
+          [('Equalize', 0.7, 7),        ('Solarize', 0.5, 0)]]
+
+exp1_6 = [[('Equalize', 0.8, 4),        ('TranslateY', 0.8, 9)],
+          [('TranslateY', 0.8, 9),      ('TranslateY', 0.6, 9)],
+          [('TranslateY', 0.9, 0),      ('TranslateY', 0.5, 9)],
+          [('AutoContrast', 0.5, 3),    ('Solarize', 0.3, 4)],
+          [('Solarize', 0.5, 3),        ('Equalize', 0.4, 4)]]
+
+exp2_0 = [[('Color', 0.7, 7),           ('TranslateX', 0.5, 8)],
+          [('Equalize', 0.3, 7),        ('AutoContrast', 0.4, 8)],
+          [('TranslateY', 0.4, 3),      ('Sharpness', 0.2, 6)],
+          [('Brightness', 0.9, 6),      ('Color', 0.2, 8)],
+          [('Solarize', 0.5, 2),        ('Invert', 0.0, 3)]]
+
+exp2_1 = [[('AutoContrast', 0.1, 5),    ('Brightness', 0.0, 0)],
+          [('Cutout', 0.2, 4),          ('Equalize', 0.1, 1)],
+          [('Equalize', 0.7, 7),        ('AutoContrast', 0.6, 4)],
+          [('Color', 0.1, 8),           ('ShearY', 0.2, 3)],
+          [('ShearY', 0.4, 2),          ('Rotate', 0.7, 0)]]
+
+exp2_2 = [[('ShearY', 0.1, 3),          ('AutoContrast', 0.9, 5)],
+          [('TranslateY', 0.3, 6),      ('Cutout', 0.3, 3)],
+          [('Equalize', 0.5, 0),        ('Solarize', 0.6, 6)],
+          [('AutoContrast', 0.3, 5),    ('Rotate', 0.2, 7)],
+          [('Equalize', 0.8, 2),        ('Invert', 0.4, 0)]]
+
+exp2_3 = [[('Equalize', 0.9, 5),        ('Color', 0.7, 0)],
+          [('Equalize', 0.1, 1),        ('ShearY', 0.1, 3)],
+          [('AutoContrast', 0.7, 3),    ('Equalize', 0.7, 0)], 
+          [('Brightness', 0.5, 1),      ('Contrast', 0.1, 7)],
+          [('Contrast', 0.1, 4),        ('Solarize', 0.6, 5)]]
+
+exp2_4 = [[('Solarize', 0.2, 3),        ('ShearX', 0.0, 0)],
+          [('TranslateX', 0.3, 0),      ('TranslateX', 0.6, 0)],
+          [('Equalize', 0.5, 9),        ('TranslateY', 0.6, 7)],
+          [('ShearX', 0.1, 0),          ('Sharpness', 0.5, 1)],
+          [('Equalize', 0.8, 6),        ('Invert', 0.3, 6)]]
+
+exp2_5 = [[('AutoContrast', 0.3, 9),    ('Cutout', 0.5, 3)],
+          [('ShearX', 0.4, 4),          ('AutoContrast', 0.9, 2)],
+          [('ShearX', 0.0, 3),          ('Posterize', 0.0, 3)],
+          [('Solarize', 0.4, 3),        ('Color', 0.2, 4)],
+          [('Equalize', 0.1, 4),        ('Equalize', 0.7, 6)]]
+
+exp2_6 = [[('Equalize', 0.3, 8),        ('AutoContrast', 0.4, 3)],
+          [('Solarize', 0.6, 4),        ('AutoContrast', 0.7, 6)],
+          [('AutoContrast', 0.2, 9),    ('Brightness', 0.4, 8)],
+          [('Equalize', 0.1, 0),        ('Equalize', 0.0, 6)],
+          [('Equalize', 0.8, 4),        ('Equalize', 0.0, 4)]]
+
+exp2_7 = [[('Equalize', 0.5, 5),        ('AutoContrast', 0.1, 2)],
+          [('Solarize', 0.5, 5),        ('AutoContrast', 0.9, 5)],
+          [('AutoContrast', 0.6, 1),    ('AutoContrast', 0.7, 8)],
+          [('Equalize', 0.2, 0),        ('AutoContrast', 0.1, 2)],
+          [('Equalize', 0.6, 9),        ('Equalize', 0.4, 4)]]
+
+exp0s = exp0_0 + exp0_1 + exp0_2 + exp0_3
+exp1s = exp1_0 + exp1_1 + exp1_2 + exp1_3 + exp1_4 + exp1_5 + exp1_6
+exp2s = exp2_0 + exp2_1 + exp2_2 + exp2_3 + exp2_4 + exp2_5 + exp2_6 + exp2_7
+policys = exp0s + exp1s + exp2s
+
 def D2A(rangeA, digit, toInt=False):
     analog = digit * (rangeA[1] - rangeA[0]) / 10.0 + rangeA[0]
     if toInt == True:
         analog = int(analog)
     return analog
 
-def ImOperation(img, ImOp, prob, mag):
+def ImOperation(img, (ImOp, prob, mag)):
     mag = D2A(rangeMag[ImOp], mag, intMag[ImOp])
     rnd = np.random.uniform()
     if rnd <= prob and prob > 0.0:
@@ -49,135 +168,10 @@ def ImOperation(img, ImOp, prob, mag):
     return img
     
 def policy(img):
-    policy_id = np.random.randint(0, 25)
-    img = eval('policy'+str(policy_id)+'(img)')
+    policy_id = np.random.choice(len(policys))
+    img = ImOperation(img, policys[policy_id][0])
+    img = ImOperation(img, policys[policy_id][1])
     return img
-
-def policy0(img):
-    img = ImOperation(img, 'Invert', 0.1, 7)
-    img = ImOperation(img, 'Contrast', 0.2, 6)
-    return img
-    
-def policy1(img):
-    img = ImOperation(img, 'Rotate', 0.7, 2)
-    img = ImOperation(img, 'TranslateX', 0.3, 9)
-    return img
-
-def policy2(img):
-    img = ImOperation(img, 'Sharpness', 0.8, 1)
-    img = ImOperation(img, 'Sharpness', 0.9, 3)
-    return img
-    
-def policy3(img):
-    img = ImOperation(img, 'ShearY', 0.5, 8)
-    img = ImOperation(img, 'TranslateY', 0.7, 9)
-    return img
-    
-def policy4(img):
-    img = ImOperation(img, 'AutoContrast', 0.5, 8)
-    img = ImOperation(img, 'Equalize', 0.9, 2)
-    return img
-    
-def policy5(img):
-    img = ImOperation(img, 'ShearY', 0.2, 7)
-    img = ImOperation(img, 'Posterize', 0.3, 7)
-    return img
-    
-def policy6(img):
-    img = ImOperation(img, 'Color', 0.4, 3)
-    img = ImOperation(img, 'Brightness', 0.6, 7)
-    return img
-    
-def policy7(img):
-    img = ImOperation(img, 'Sharpness', 0.3, 9)
-    img = ImOperation(img, 'Brightness', 0.7, 9)
-    return img
-    
-def policy8(img):
-    img = ImOperation(img, 'Equalize', 0.6, 5)
-    img = ImOperation(img, 'Equalize', 0.5, 1)
-    return img
-    
-def policy9(img):
-    img = ImOperation(img, 'Contrast', 0.6, 7)
-    img = ImOperation(img, 'Sharpness', 0.6, 5)
-    return img
-
-def policy10(img):
-    img = ImOperation(img, 'Color', 0.7, 7)
-    img = ImOperation(img, 'TranslateX', 0.5, 8)
-    return img
-    
-def policy11(img):
-    img = ImOperation(img, 'Equalize', 0.3, 7)
-    img = ImOperation(img, 'AutoContrast', 0.4, 8)
-    return img
-
-def policy12(img):
-    img = ImOperation(img, 'TranslateY', 0.4, 3)
-    img = ImOperation(img, 'Sharpness', 0.2, 6)
-    return img
-    
-def policy13(img):
-    img = ImOperation(img, 'Brightness', 0.9, 6)
-    img = ImOperation(img, 'Color', 0.2, 8)
-    return img
-    
-def policy14(img):
-    img = ImOperation(img, 'Solarize', 0.5, 2)
-    img = ImOperation(img, 'Invert', 0.0, 3)
-    return img
-    
-def policy15(img):
-    img = ImOperation(img, 'Equalize', 0.2, 0)
-    img = ImOperation(img, 'AutoContrast', 0.6, 0)
-    return img
-    
-def policy16(img):
-    img = ImOperation(img, 'Equalize', 0.2, 8)
-    img = ImOperation(img, 'Equalize', 0.6, 4)
-    return img
-    
-def policy17(img):
-    img = ImOperation(img, 'Color', 0.9, 9)
-    img = ImOperation(img, 'Equalize', 0.6, 6)
-    return img
-    
-def policy18(img):
-    img = ImOperation(img, 'AutoContrast', 0.8, 4)
-    img = ImOperation(img, 'Solarize', 0.2, 8)
-    return img
-    
-def policy19(img):
-    img = ImOperation(img, 'Brightness', 0.1, 3)
-    img = ImOperation(img, 'Color', 0.7, 0)
-    return img
-    
-def policy20(img):
-    img = ImOperation(img, 'Solarize', 0.4, 5)
-    img = ImOperation(img, 'AutoContrast', 0.9, 3)
-    return img
-    
-def policy21(img):
-    img = ImOperation(img, 'TranslateY', 0.9, 9)
-    img = ImOperation(img, 'TranslateY', 0.7, 9)
-    return img
-
-def policy22(img):
-    img = ImOperation(img, 'AutoContrast', 0.9, 2)
-    img = ImOperation(img, 'Solarize', 0.8, 3)
-    return img
-    
-def policy23(img):
-    img = ImOperation(img, 'Equalize', 0.8, 8)
-    img = ImOperation(img, 'Invert', 0.1, 3)
-    return img
-    
-def policy24(img):
-    img = ImOperation(img, 'TranslateY', 0.7, 9)
-    img = ImOperation(img, 'AutoContrast', 0.9, 1)
-    return img
-
     
     
     

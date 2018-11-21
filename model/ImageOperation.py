@@ -9,8 +9,6 @@ from __future__ import division
 from PIL import Image, ImageOps, ImageEnhance
 import numpy as np
 
-MEAN, STD = [0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010]
-
 def translate(img, x=0, y=0):
     affine_tuple = (1, 0, x, 0, 1, y)
     new_img = img.transform(img.size, Image.AFFINE, affine_tuple)
@@ -116,13 +114,13 @@ def random_flip_left_right(img):
     return img
 
 def per_image_standarization(img):
-    img = np.array(img).astype('float') / 255.0
+    img = np.array(img).astype('float32') / 255.0
     elements = img.size
     std_img = (img - np.mean(img)) / np.max([np.std(img), 1.0/np.sqrt(elements)])
     return std_img
     
-def image_standarization(img, mean=[0.4914, 0.4822, 0.4465], std=[0.2023, 0.1994, 0.2010]):
-    img = np.array(img).astype('float') / 255.0
+def image_standarization(img, mean=[0.4914, 0.4822, 0.4465], std=[0.2470, 0.2435, 0.2616]):
+    img = np.array(img).astype('float32') / 255.0
     std_img = (img - mean) / std
     return std_img
 
