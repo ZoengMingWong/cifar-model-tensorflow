@@ -1,6 +1,10 @@
 # Cifar10
 The Tensorflow implementation of some models like ResNet and WideResNet on the Cifar-10 or Cifar-100 dataset. There are also some novel methods such as data augmentation in this project.
-
+## Dataset
+Download the python version [CIFAR-10](http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz) or [CIFAR-100](http://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz) dataset from http://www.cs.toronto.edu/~kriz/cifar.html and unzip the dataset.  
+For convenience, the project doesn't use the original dataset as most other projects do, however, the dataset will be firstly convert to PNG images that every image contains its label in the filename, e.g. the image "test0_3.png" represents the 1st image of the testing dataset with which the label is 3. It is memory efficient if we can dynamically parse the images while needed. However, it doesn't waste too much time as we can use the multiprocessing to parallelly prepare the datasets for the next epoch while training.  
+You can do it with the command below. Note that the project doesn't provide the command line parameters, you should config them in the corresponding files.  
+`python cifar_to_png.py`
 ## Reference
 ### ResNet
 > Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. [_Deep Residual Learning for Image Recognition_](https://arxiv.org/abs/1512.03385). arXiv:1512.03385v1 [cs.CV] 10 Dec 2015.  
