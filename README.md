@@ -3,9 +3,9 @@ The Tensorflow implementation of some models like ResNet and WideResNet on the C
 
 ## Reference
 ### ResNet
-> Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. [_Deep Residual Learning for Image Recognition_](https://arxiv.org/abs/1512.03385). arXiv:1512.03385v1 [cs.CV] 10 Dec 2015.
-### Different Blocks in ResNet
-> Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. [_Identity Mappings in Deep Residual Networks_](https://arxiv.org/abs/1603.05027). arXiv:1603.05027v3 [cs.CV] 25 Jul 2016.
+> Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. [_Deep Residual Learning for Image Recognition_](https://arxiv.org/abs/1512.03385). arXiv:1512.03385v1 [cs.CV] 10 Dec 2015.  
+
+> Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. [_Identity Mappings in Deep Residual Networks_](https://arxiv.org/abs/1603.05027). arXiv:1603.05027v3 [cs.CV] 25 Jul 2016.  
 ### ResNeXt
 > Saining Xie, Ross Girshick, Piotr Dollár, Zhuowen Tu, Kaiming He. [_Aggregated Residual Transformations for Deep Neural Networks_](https://arxiv.org/abs/1611.05431). arXiv:1611.05431v2 [cs.CV] 11 Apr 2017.
 ### WideResNet
