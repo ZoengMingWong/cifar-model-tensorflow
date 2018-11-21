@@ -12,6 +12,10 @@ The Tensorflow implementation of some models like ResNet and WideResNet on the C
 > Sergey Zagoruyko, Nikos Komodakis. [_Wide Residual Networks_](https://arxiv.org/abs/1605.07146v4). arXiv:1605.07146v4 [cs.CV] 14 Jun 2017.  
 
 Pytorch implementation:  https://github.com/szagoruyko/wide-residual-networks
+### PyramidNet
+> Dongyoon Han, Jiwhan Kim, Junmo Kim. [_Deep Pyramidal Residual Networks_](https://arxiv.org/abs/1610.02915v4). arXiv:1610.02915v4 [cs.CV] 6 Sep 2017.  
+
+Torch implementation: https://github.com/jhkim89/PyramidNet
 ### Mixup Augmentation
 > Hongyi Zhang, Moustapha Cisse, Yann N. Dauphin, David Lopez-Paz. [_Mixup: Beyond Empirical Risk Minimization_](https://arxiv.org/abs/1710.09412). arXiv:1710.09412v2 [cs.LG] 27 Apr 2018.  
 
@@ -21,4 +25,4 @@ Pytorch implementation: https://github.com/facebookresearch/mixup-cifar10
 ### AutoAugmentation
 > Ekin D. Cubuk, Barret Zoph, Dandelion Mane, Vijay Vasudevan, Quoc V. Le. [_AutoAugment: Learning Augmentation Policies from Data_](https://arxiv.org/abs/1805.09501v2). arXiv:1805.09501v2 [cs.CV] 9 Oct 2018.  
 
-Github: https://github.com/tensorflow/models/tree/master/research/autoaugment
+Tensorflow implementation: https://github.com/tensorflow/models/tree/master/research/autoaugment
