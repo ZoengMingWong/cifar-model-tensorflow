@@ -119,7 +119,7 @@ def test(ckpt_meta, ckpt, xs_test, ys_test, test_batch_size=100):
         losses_test, err_test = 0., 0.
         test_batches = ys_test.shape[0] // test_batch_size
         for i in range(test_batches):
-            loss_test, label_test, pred_test = sess.run([loss, label, pred], feed_dict={train_flag: False})
+            loss_test, label_test, pred_test = sess.run([loss, label, pred], feed_dict={train_flag: False, batch_size: test_batch_size})
             err_test += 100.0 * np.sum(np.argmax(pred_test, axis=1) != np.argmax(label_test, axis=1))
             losses_test += loss_test
         losses_test /= test_batches

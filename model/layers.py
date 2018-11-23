@@ -13,7 +13,6 @@ def conv2d(in_feat, out_chans, kernel_size, strides, padding='SAME', activation=
     stdv = tf.sqrt(2.0 / elements)
     with tf.name_scope(name=name):
         weight = tf.Variable(tf.random_normal(shape, stddev=stdv, seed=0), trainable=True, name='weight')
-        
         conv = tf.nn.conv2d(in_feat, weight, strides, padding, name='conv')
         
         if use_bias:
@@ -56,6 +55,28 @@ def conv_shortcut(in_feat, out_chans, strides, training=False, name=None):
     out = batch_normalization(out, training=training, name=name+'_bn')
     out = tf.nn.relu(out, name=name+'_relu')
     return out
+    
+def shake(in_feat, training, bern_prob=1., alpha=[-1., 1.], beta=[0., 1.], name=None):
+    graph = tf.get_default_graph()
+    batch_size = graph.get_operation_by_name('batch_size').outputs[0]
+    with tf.name_scope(name):
+        assert alpha[1] > alpha[0]
+        assert beta[1] > beta[0]
+        def train_shake():
+            rnd_shape = [batch_size, 1, 1, 1]
+            rnd_alpha = tf.random_uniform(rnd_shape, alpha[0], alpha[1], name='rnd_alpha')
+            rnd_beta = tf.random_uniform(rnd_shape, beta[0], beta[1], name='rnd_beta')
+            rnd_bern = tf.floor(tf.random_uniform(rnd_shape) + bern_prob, name='rnd_bern')
+            rnd_forward = tf.add(rnd_bern, (1.0 - rnd_bern) * rnd_alpha, name='rnd_forward')
+            rnd_backward = tf.add(rnd_bern, (1.0 - rnd_bern) * rnd_beta, name='rnd_backward')
+            shake = tf.add(in_feat * rnd_backward, tf.stop_gradient((in_feat * (rnd_forward - rnd_backward))), name='train_shake')
+            return shake
+            
+        def test_shake():
+            E_shake = bern_prob + (1.0 - bern_prob) * (alpha[1] + alpha[0]) / 2
+            return tf.multiply(in_feat, E_shake, name='test_shake')
+        shake = tf.cond(training, train_shake, test_shake, name='shake')
+    return shake
     
 
 

@@ -60,8 +60,8 @@ def cifar_to_png(src_dir, dataset='cifar10', dst_dir=None):
     
 if __name__ == '__main__':
     
-    src = '/home/hzm/cifar10'
-    dst = '/home/hzm/cifar_data'
+    src = '/home/hzm/cifar10'      # the path of the unzip cifar dataset
+    dst = '/home/hzm/cifar_data'   # the destination path to save the images
     cifar_to_png(src, 'cifar10', dst)
 
 

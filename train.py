@@ -10,7 +10,7 @@ from tensorflow import data
 import numpy as np
 import os, sys, time, re
 from multiprocessing import Pool
-from model import layers, resnet, resnext, wideResnet, pyramidNet
+from model import layers, resnet, resnext, wideResnet, pyramidNet, shakeDrop
 import util
 
 os.environ['CUDA_DEVICES_ORDER'] = 'PCI_BUS_ID'
@@ -22,7 +22,9 @@ model_dict = {'ResNet18': resnet.ResNet18, 'PreResNet18': resnet.PreResNet18,
               'PreResNeXt29_32x4d': resnext.ResNeXt29_32x4d, 
               'WRN_28_10': wideResnet.WRN_28_10, 'WRN_16_4': wideResnet.WRN_16_4,
               'PyramidNet_a48_d110': pyramidNet.PyramidNet_a48_d110, 
-              'BotPyramidNet_a270_d164': pyramidNet.BotPyramidNet_a270_d164}
+              'BotPyramidNet_a270_d164': pyramidNet.BotPyramidNet_a270_d164,
+              'BotPyramidNet_a200_d272': pyramidNet.BotPyramidNet_a200_d272,
+              'ShakeDrop_272': shakeDrop.ShakeDrop_a200_d272}
 
 
 if __name__ == '__main__':
@@ -230,7 +232,8 @@ if __name__ == '__main__':
             
             for i in range(train_batches):
                 batch_time = time.time()
-                _, loss_i, label_i, pred_i = sess.run([train_op, loss, label, pred], feed_dict={train_flag: True, lr: learning_rate(e)})
+                _, loss_i, label_i, pred_i = sess.run([train_op, loss, label, pred], 
+                                                      feed_dict={train_flag: True, lr: learning_rate(e), batch_size: train_batch_size})
                 err_batch = 100.0 * np.sum(np.argmax(pred_i, axis=1) != np.argmax(label_i, axis=1)) / train_batch_size
                 
                 train_losses[e] += loss_i
@@ -258,7 +261,7 @@ if __name__ == '__main__':
             val_time = time.time()
             sess.run(data_loader.initializer, feed_dict={xs: xs_val, ys: ys_val, batch_size: val_batch_size})
             for i in range(val_batches):
-                loss_val, label_val, pred_val = sess.run([loss, label, pred], feed_dict={train_flag: False})
+                loss_val, label_val, pred_val = sess.run([loss, label, pred], feed_dict={train_flag: False, batch_size: val_batch_size})
                 val_err[e] += 100.0 * np.sum(np.argmax(pred_val, axis=1) != np.argmax(label_val, axis=1))
                 val_losses[e] += loss_val
             val_losses[e] /= val_batches
