@@ -23,6 +23,8 @@ Pytorch implementation:  https://github.com/szagoruyko/wide-residual-networks
 > Dongyoon Han, Jiwhan Kim, Junmo Kim. [_Deep Pyramidal Residual Networks_](https://arxiv.org/abs/1610.02915v4). arXiv:1610.02915v4 [cs.CV] 6 Sep 2017.  
 
 Torch implementation: https://github.com/jhkim89/PyramidNet
+### ShakeDrop
+> Yoshihiro Yamada, Masakazu Iwamura, Koichi Kise. [_ShakeDrop regularization_](https://arxiv.org/abs/1802.02375v1). arXiv:1802.02375v1 [cs.CV] 7 Feb 2018.  
 ### Mixup Augmentation
 > Hongyi Zhang, Moustapha Cisse, Yann N. Dauphin, David Lopez-Paz. [_Mixup: Beyond Empirical Risk Minimization_](https://arxiv.org/abs/1710.09412). arXiv:1710.09412v2 [cs.LG] 27 Apr 2018.  
 
