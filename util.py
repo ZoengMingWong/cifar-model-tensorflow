@@ -57,6 +57,9 @@ def parse_time(sec):
     return h, m, s
 
 def parse_img(filename, train=True, autoAug=True):
+    """
+    Parse a PNG image from its filename, randomly disturb and standarize it.
+    """
     img = Image.open(filename)
     if train == True:
         if autoAug == True:
@@ -70,6 +73,9 @@ def parse_img(filename, train=True, autoAug=True):
     return img
     
 def batch_parse(xs_batch, ys_batch, train=True, mixup_alpha=0.0, autoAug=True):
+    """
+    Parse a batch of images.
+    """
     ys_one_hot = np.zeros([len(ys_batch), 10])
     ys_one_hot[range(len(ys_batch)), ys_batch] = 1
     
@@ -103,13 +109,12 @@ def test(ckpt_meta, ckpt, xs_test, ys_test, test_batch_size=100):
         saver.restore(sess, ckpt)
         
         graph = tf.get_default_graph()
-        xs = graph.get_operation_by_name('xs').outputs[0]
-        ys = graph.get_operation_by_name('ys').outputs[0]
-        batch_size = graph.get_operation_by_name('batch_size').outputs[0]
+        xs = graph.get_operation_by_name('Data_loader/xs').outputs[0]
+        ys = graph.get_operation_by_name('Data_loader/ys').outputs[0]
+        batch_size = graph.get_operation_by_name('Data_loader/batch_size').outputs[0]
         train_flag = graph.get_operation_by_name('training_flag').outputs[0]
         
-        label = tf.get_collection('batch_label')[0]
-        pred = tf.get_collection('pred')[0]
+        error = tf.get_collection('error')[0]
         loss = tf.get_collection('loss')[0]
         data_loader_initializer = tf.get_collection('data_loader_initializer')[0]
         
@@ -119,14 +124,31 @@ def test(ckpt_meta, ckpt, xs_test, ys_test, test_batch_size=100):
         losses_test, err_test = 0., 0.
         test_batches = ys_test.shape[0] // test_batch_size
         for i in range(test_batches):
-            loss_test, label_test, pred_test = sess.run([loss, label, pred], feed_dict={train_flag: False, batch_size: test_batch_size})
-            err_test += 100.0 * np.sum(np.argmax(pred_test, axis=1) != np.argmax(label_test, axis=1))
-            losses_test += loss_test
+            loss_i, err_i = sess.run([loss, error], feed_dict={train_flag: False, batch_size: test_batch_size})
+            err_test += err_i
+            losses_test += loss_i
         losses_test /= test_batches
-        err_test /= (test_batches * test_batch_size)
+        err_test /= test_batches
         print('Test: Loss = {:.3f}, Test_err = {:.2f}'.format(losses_test, err_test))
         print('Time has passed {:.2f}s.'.format(time.time()-begin))
     return None
+    
+def average_gradients(tower_grads):
+    """
+    For multiGPUs implementation, average the gradients gathered from different GPUs.
+    """
+    average_grads = []
+    for grad_and_vars in zip(*tower_grads):
+        grads = []
+        for g, _ in grad_and_vars:
+            expand_g = tf.expand_dims(g, 0)
+            grads.append(expand_g)
+        grad = tf.concat(grads, axis=0)
+        grad = tf.reduce_mean(grad, axis=0)
+        v = grad_and_vars[0][1]
+        grad_and_var = (grad, v)
+        average_grads.append(grad_and_var)
+    return average_grads
 
 def save_training_result(file_name, train_loss, train_err, val_loss, val_err):
         

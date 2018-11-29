@@ -13,27 +13,18 @@ from multiprocessing import Pool
 import util
 
 os.environ['CUDA_DEVICES_ORDER'] = 'PCI_BUS_ID'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '2,3'
 
 if __name__ == '__main__':
     
     data_path = '/home/hzm/cifar_data'  # data path
-    ckpt_meta = 'ckpt/model-final.meta' # meta checkpoint the resotre the graph
-    ckpt = 'ckpt/model-final'           # checkpoint to resotre the variables
+    ckpt_meta = 'ckpt/model-1.meta' # meta checkpoint the resotre the graph
+    ckpt = 'ckpt/model-1'           # checkpoint to resotre the variables
     classes = 10                        # total classes of the label
-    epochs = 200                        # epochs to train
+    epochs = 2                        # epochs to train
     init_lr = 0.1                       # initial learning rate
     # learning_rate should be callable function with the EPOCH as its input parameter.
     learning_rate = lambda e: init_lr if e < 100 else (init_lr / 10) if e < 150 else (init_lr / 100)
-    
-    # If you haven't save the optimizer (default) in your checkpoint, you must define a 
-    # new optimizer to create the train_op.
-    optimizer = tf.train.MomentumOptimizer  # the optimizer to use, as you please
-    grad_clip = 5.0                     # gradient clipping to avoid exploration
-    
-    momentum = 0.9                      # the momentuum Momentum optimizer
-    use_nesterov = True                 # whether use the Nesterov Momentum
-    save_optim = False                  # whether save the variables of the optimizer while making a checkpoint
     
     val_ratio = 0.1                     # take a part of the traing set to apply validation
     train_batch_size = 128              # batch size of the training set
@@ -99,43 +90,23 @@ if __name__ == '__main__':
         saver.restore(sess, ckpt)
         
         graph = tf.get_default_graph()
-        xs = graph.get_operation_by_name('xs').outputs[0]
-        ys = graph.get_operation_by_name('ys').outputs[0]
-        batch_size = graph.get_operation_by_name('batch_size').outputs[0]
+        xs = graph.get_operation_by_name('Data_loader/xs').outputs[0]
+        ys = graph.get_operation_by_name('Data_loader/ys').outputs[0]
+        batch_size = graph.get_operation_by_name('Data_loader/batch_size').outputs[0]
         train_flag = graph.get_operation_by_name('training_flag').outputs[0]
         lr = graph.get_operation_by_name('lr').outputs[0]
         
-        error = tf.get_collection('error')[0]
-        loss = tf.get_collection('loss')[0]
+        tower_error = tf.get_collection('error')[0]
+        tower_loss = tf.get_collection('loss')[0]
         train_op = tf.get_collection('train_op')[0]
         data_loader_initializer = tf.get_collection('data_loader_initializer')[0]
         
-        # define a new optimizer
-        if optimizer is not None:
-            if optimizer is tf.train.MomentumOptimizer:
-                optim = optimizer(lr, momentum=0.9, name='new_optimizer')
-            else:
-                optim = optimizer(lr, name='new_optimizer')
+        # gather the variables to save
+        params = 0
+        for var in tf.trainable_variables():
+            params += np.prod(var.get_shape().as_list())
             
-            update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-            with tf.control_dependencies(update_ops):
-                grads, variables = zip(*optim.compute_gradients(loss))
-                grads, global_norm = tf.clip_by_global_norm(grads, grad_clip)
-                train_op = optim.apply_gradients(zip(grads, variables))
-            sess.run(tf.variables_initializer(optim.variables()))
-        
-        if save_optim == True:
-            saver = tf.train.Saver(max_to_keep=5)
-        else:
-            # gather the variables to save
-            var_list = tf.trainable_variables()
-            
-            global_var = tf.global_variables()
-            moving_vars = [g for g in global_var if 'moving_mean' in g.name]
-            moving_vars += [g for g in global_var if 'moving_variance' in g.name]
-            var_list += moving_vars
-            
-            saver = tf.train.Saver(var_list=var_list, max_to_keep=5)
+        saver = tf.train.Saver(max_to_keep=5)
         
         #######################################################################
         # Augment the training data with multiprocess.
@@ -161,6 +132,7 @@ if __name__ == '__main__':
         #######################################################################
         
         print('Training ...')
+        print('Trainable parameters: {}'.format(params))
         begin = time.time()
         
         rnd_samples = np.arange(ys_train.shape[0])
@@ -184,11 +156,10 @@ if __name__ == '__main__':
             pool = Pool(1)
             result = pool.apply_async(util.batch_parse, (xs_train, ys_train, True, mixup_alpha, autoAugment, ))
             pool.close()
-            ###################################################################
             
             for i in range(train_batches):
                 batch_time = time.time()
-                _, loss_i, err_i = sess.run([train_op, loss, error], feed_dict={train_flag: True, lr: learning_rate(e), batch_size: train_batch_size})
+                _, loss_i, err_i = sess.run([train_op, tower_loss, tower_error], feed_dict={train_flag: True, lr: learning_rate(e), batch_size: train_batch_size})
                 train_losses[e] += loss_i
                 train_err[e] += err_i
                 
@@ -214,7 +185,7 @@ if __name__ == '__main__':
             val_time = time.time()
             sess.run(data_loader_initializer, feed_dict={xs: xs_val, ys: ys_val, batch_size: val_batch_size})
             for i in range(val_batches):
-                loss_val_i, err_val_i = sess.run([loss, error], feed_dict={train_flag: False, batch_size: val_batch_size})
+                loss_val_i, err_val_i = sess.run([tower_loss, tower_error], feed_dict={train_flag: False, batch_size: val_batch_size})
                 val_err[e] += err_val_i
                 val_losses[e] += loss_val_i
             val_losses[e] /= val_batches

@@ -7,31 +7,35 @@ Created on Wed Nov  7 16:23:26 2018
 import tensorflow as tf
 
 def conv2d(in_feat, out_chans, kernel_size, strides, padding='SAME', activation=None, use_bias=False, name=None):
-    shape = kernel_size + [in_feat.shape[-1].value, out_chans]
-    strides = [1] + strides + [1]
-    elements = float(kernel_size[0] * kernel_size[1] * out_chans)
-    stdv = tf.sqrt(2.0 / elements)
-    with tf.name_scope(name=name):
-        weight = tf.Variable(tf.random_normal(shape, stddev=stdv, seed=0), trainable=True, name='weight')
+    with tf.variable_scope(name, 'Conv', [in_feat], reuse=tf.AUTO_REUSE):
+        shape = kernel_size + [in_feat.shape[-1].value, out_chans]
+        strides = [1] + strides + [1]
+        elements = float(kernel_size[0] * kernel_size[1] * out_chans)
+        stdv = tf.sqrt(2.0 / elements)
+        weight_init = tf.random_uniform_initializer(-stdv, stdv, seed=0)
+        weight = tf.get_variable('weight', shape, initializer=weight_init, trainable=True)
         conv = tf.nn.conv2d(in_feat, weight, strides, padding, name='conv')
         
         if use_bias:
-            bias = tf.Variable(tf.constant(0.0, shape=[out_chans]), trainable=True, name='bias')
+            bias_init = tf.constant_initializer(0.0)
+            bias = tf.get_variable('bias', [out_chans], initializer=bias_init, trainable=True)
             conv = tf.add(conv, bias, name='add_bias')
         if activation is not None:
             conv = activation(conv, name='activation')
     return conv
     
 def linear(in_feat, out_classes, activation=False, use_bias=True, name=None):
-    shape = [in_feat.shape[-1].value, out_classes]
-    stdv = 1.0 / tf.sqrt(float(out_classes))
-    with tf.name_scope(name=name):
-        weight = tf.Variable(tf.random_uniform(shape, -stdv, stdv, seed=0), trainable=True, name='weight')
+    with tf.variable_scope(name, 'Fully', [in_feat], reuse=tf.AUTO_REUSE):
+        shape = [in_feat.shape[-1].value, out_classes]
+        stdv = 1.0 / tf.sqrt(float(out_classes))
+        weight_init = tf.random_uniform_initializer(-stdv, stdv, seed=0)
+        weight = tf.get_variable('weight', shape, initializer=weight_init, trainable=True)
         
-        full = tf.matmul(in_feat, weight, name='full_connect')
+        full = tf.matmul(in_feat, weight, name='fully_connect')
         
         if use_bias:
-            bias = tf.Variable(tf.constant(0.0, shape=[out_classes]), trainable=True, name='bias')
+            bias_init = tf.constant_initializer(0.0)
+            bias = tf.get_variable('bias', [out_classes], initializer=bias_init, trainable=True)
             full = tf.add(full, bias, name='add_bias')
         if activation is not None:
             full = activation(full, name='activation')
@@ -42,23 +46,23 @@ def batch_normalization(in_feat, training, name=None):
     return out_feat
 
 def zero_pad_shortcut(in_feat, out_chans, strides, name=None):
-    if strides != [1, 1]:
-        in_feat = tf.layers.average_pooling2d(in_feat, strides, strides, 'SAME', name=name+'_avg_pool')
-    in_chans = in_feat.shape[-1].value
-    before = (out_chans - in_chans) // 2
-    after = out_chans - in_chans - before
-    out = tf.pad(in_feat, paddings=[[0, 0], [0, 0], [0, 0], [before, after]], name=name+'_zero_pad')
+    with tf.name_scope(name):
+        if strides != [1, 1]:
+            in_feat = tf.layers.average_pooling2d(in_feat, strides, strides, 'SAME', name='avg_pool')
+        in_chans = in_feat.shape[-1].value
+        out = tf.pad(in_feat, paddings=[[0, 0], [0, 0], [0, 0], [0, (out_chans - in_chans)]], name='zero_pad')
     return out
     
 def conv_shortcut(in_feat, out_chans, strides, training=False, name=None):
-    out = conv2d(in_feat, out_chans, [1, 1], strides, name=name+'_conv')
-    out = batch_normalization(out, training=training, name=name+'_bn')
-    out = tf.nn.relu(out, name=name+'_relu')
+    with tf.variable_scope(name):
+        out = conv2d(in_feat, out_chans, [1, 1], strides, name='conv')
+        out = batch_normalization(out, training=training, name='bn')
     return out
     
 def shake(in_feat, training, bern_prob=1., alpha=[-1., 1.], beta=[0., 1.], name=None):
-    graph = tf.get_default_graph()
-    batch_size = graph.get_operation_by_name('batch_size').outputs[0]
+    batch_size = in_feat.shape[0].value
+    if batch_size is None:
+        batch_size = tf.get_collection('dev_batch_size')[0]
     with tf.name_scope(name):
         assert alpha[1] > alpha[0]
         assert beta[1] > beta[0]
