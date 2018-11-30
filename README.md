@@ -3,7 +3,7 @@ The Tensorflow implementation of some models like ResNet and WideResNet on the C
 ## Dataset
 Download the python version [CIFAR-10](http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz) or [CIFAR-100](http://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz) dataset from http://www.cs.toronto.edu/~kriz/cifar.html and unzip the dataset.
 
-For convenience, the project doesn't use the original dataset as most other projects do, however, the dataset will be firstly convert to PNG images that every image contains its label in the filename, e.g. the image "test0_3.png" represents the 1st image of the testing dataset with which the label is 3. It is memory efficient if we can dynamically parse the images while needed. However, it doesn't waste too much time as we can use the multiprocessing to parallelly prepare the datasets for the next epoch while training.
+For convenience, the project doesn't use the original dataset as most other projects do, however, the dataset will be firstly converted to PNG images that every image contains its label in the filename, e.g. the image "test0_3.png" represents the 1st image of the testing dataset with which the label is 3. It is memory efficient if we can dynamically parse the images while needed, e.g. using the map function in tf.data.Dataset. However, it doesn't waste too much time as we can use the multiprocessing to parallelly prepare the datasets for the next epoch while training.
 
 You can do it with the command below. Note that the project doesn't provide the command line parameters, you should config them in the corresponding files.
 
