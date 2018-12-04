@@ -1,13 +1,16 @@
 # Cifar10
-The Tensorflow implementation of some models like ResNet and WideResNet on the Cifar-10 or Cifar-100 dataset. There are also some novel methods such as data augmentation in this project.
-## Dataset
+The Tensorflow implementation of some models including the ResNet, ResNeXt, WideResNet, PyramidNet, etc. on the Cifar-10 or Cifar-100 dataset. There are also some novel augmentation and regularization methods such as Mixup and autoAugmentation and ShakeDrop in this project. The Code is clear to read and understand, and you can learn some useful Python and TensorFlow skills including multiprocessing, pyplot, PIL, and how to feed the network with tf.data.Dataset, how to accelerate the training with multiGPUs, how to make a checkpoint and restore it, and so on.
+## Usage
+### Dataset
 Download the python version [CIFAR-10](http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz) or [CIFAR-100](http://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz) dataset from http://www.cs.toronto.edu/~kriz/cifar.html and unzip the dataset.
 
 For convenience, the project doesn't use the original dataset as most other projects do, however, the dataset will be firstly converted to PNG images that every image contains its label in the filename, e.g. the image "test0_3.png" represents the 1st image of the testing dataset with which the label is 3. It is memory efficient if we can dynamically parse the images while needed, e.g. using the map function in tf.data.Dataset. However, it doesn't waste too much time as we can use the multiprocessing to parallelly prepare the datasets for the next epoch while training.
 
-You can do it with the command below. Note that the project doesn't provide the command line parameters, you should config them in the corresponding files.
+You can do it with the command below in the bash. Note that the project doesn't provide the command line parameters, you should config them in the corresponding files. You can check whether the images is correctly saved after the command.
 
-`python cifar_to_png.py`
+`$ python cifar_to_png.py`
+### Training
+
 ## Reference
 ### ResNet
 > Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. [_Deep Residual Learning for Image Recognition_](https://arxiv.org/abs/1512.03385). arXiv:1512.03385v1 [cs.CV] 10 Dec 2015.  
