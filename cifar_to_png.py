@@ -24,21 +24,21 @@ def cifar_to_png(src_dir, dataset='cifar10', dst_dir=None):
                 ys_train.extend(train_data['labels'])
         with open(src_dir+'/test_batch', 'rb') as f:
             test_data = cPickle.load(f)
-            xs_test = np.hstack(tuple([test_data['data'][:, i::1024] for i in range(1024)]))
+            xs_test = test_data['data'].reshape(-1, 3, 32, 32).transpose(0, 2, 3, 1)
             ys_test = np.array(test_data['labels'])
         
         xs_train = np.vstack(tuple(xs_train))
-        xs_train = np.hstack(tuple([xs_train[:, i::1024] for i in range(1024)]))
+        xs_train = xs_train.reshape(-1, 3, 32, 32).transpose(0, 2, 3, 1)
         ys_train = np.array(ys_train)
         
     elif dataset == 'cifar100':
         with open(src_dir+'/train', 'rb') as f:
             train_data = cPickle.load(f)
-            xs_train = np.hstack(tuple([train_data['data'][:, i::1024] for i in range(1024)]))
+            xs_test = train_data['data'].reshape(-1, 3, 32, 32).transpose(0, 2, 3, 1)
             ys_train = np.array(train_data['fine_labels'])
         with open(src_dir+'/test', 'rb') as f:
             test_data = cPickle.load(f)
-            xs_test = np.hstack(tuple([test_data['data'][:, i::1024] for i in range(1024)]))
+            xs_test = test_data['data'].reshape(-1, 3, 32, 32).transpose(0, 2, 3, 1)
             ys_test = np.array(test_data['fine_labels'])
             
     else:
@@ -51,11 +51,11 @@ def cifar_to_png(src_dir, dataset='cifar10', dst_dir=None):
         os.mkdir(dst_dir)
     os.mkdir(dst_dir+'/test')
     for i in range(ys_test.shape[0]):
-        plt.imsave(dst_dir+'/test/'+str(i)+'_'+str(ys_test[i])+'.png', xs_test[i].reshape(32, 32, 3))
+        plt.imsave(dst_dir+'/test/test'+str(i)+'_'+str(ys_test[i])+'.png', xs_test[i])
     
     os.mkdir(dst_dir+'/train')
     for i in range(ys_train.shape[0]):
-        plt.imsave(dst_dir+'/train/'+str(i)+'_'+str(ys_train[i])+'.png', xs_train[i].reshape(32, 32, 3))
+        plt.imsave(dst_dir+'/train/train'+str(i)+'_'+str(ys_train[i])+'.png', xs_train[i])
     return None
     
 if __name__ == '__main__':

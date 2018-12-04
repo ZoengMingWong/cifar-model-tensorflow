@@ -29,7 +29,6 @@ model_dict = {'ResNet18': resnet.ResNet18, 'PreResNet18': resnet.PreResNet18,
               'BotPyramidNet_a200_d272': pyramidNet.BotPyramidNet_a200_d272,
               'ShakeDrop_272': shakeDrop.ShakeDrop_a200_d272}
 
-
 if __name__ == '__main__':
     
     data_path = '/home/hzm/cifar_data'  # data path
@@ -67,25 +66,29 @@ if __name__ == '__main__':
     ---------------------------------------------------------------------------
     """
     np.random.seed(0)
-    xs_train = np.array([data_path + '/train/' + f for f in os.listdir(data_path + '/train/')])
-    ys_train = np.array([int(re.split('[_.]', f)[1]) for f in os.listdir(data_path + '/train/')])
-    xs_test = np.array([data_path + '/test/' + f for f in os.listdir(data_path + '/test/')])
-    ys_test = np.array([int(re.split('[_.]', f)[1]) for f in os.listdir(data_path + '/test/')])
+    fs = os.listdir(os.path.join(data_path, 'train'))
+    xs_train = np.array([os.path.join(data_path, 'train', f) for f in fs])
+    ys_train = np.array([int(re.split('[_.]', f)[1]) for f in fs])
+    fs = os.listdir(os.path.join(data_path, 'test'))
+    xs_test = np.array([os.path.join(data_path, 'test', f) for f in fs])
+    ys_test = np.array([int(re.split('[_.]', f)[1]) for f in fs])
     
     # Take a part of the traing set as the validation set.
     val_size = int(ys_train.shape[0] * val_ratio)
     val_batches = val_size // val_batch_size
     val_size = val_batches * val_batch_size
     
-    xs_train, xs_val = xs_train[:-val_size], xs_train[-val_size:]
-    ys_train, ys_val = ys_train[:-val_size], ys_train[-val_size:]
+    rnd = np.random.permutation(range(ys_train.shape[0]))
+    xs_train, xs_val = xs_train[rnd[:-val_size]], xs_train[rnd[-val_size:]]
+    ys_train, ys_val = ys_train[rnd[:-val_size]], ys_train[rnd[-val_size:]]
     train_batches = ys_train.shape[0] // train_batch_size
     
     ###########################################################################
     # Preprocess the validating images with multiprocessing.
     procs = 5
-    xs_val = np.split(xs_val[:(xs_val.shape[0] // procs * procs)], procs)
-    ys_val = np.split(ys_val[:(ys_val.shape[0] // procs * procs)], procs)
+    split = [(xs_val.shape[0] // procs) * i for i in range(procs)[1:]]
+    xs_val = np.split(xs_val, split)
+    ys_val = np.split(ys_val, split)
     
     pool = Pool(procs)
     results = []
@@ -118,6 +121,7 @@ if __name__ == '__main__':
         batch_size = tf.placeholder(tf.int64, shape=[], name='batch_size')
         dataset = data.Dataset.from_tensor_slices((xs, ys)).batch(batch_size)
         data_loader = dataset.make_initializable_iterator()
+        tf.add_to_collection('dev_batch_size', tf.to_int32(batch_size))
         img, label = data_loader.get_next(name='batch_loader')
     
     # Distinguish the training and testing states for BN and dropout.
@@ -204,8 +208,9 @@ if __name__ == '__main__':
         # Augment the training data with multiprocess.
         print('Data preparing ...')
         procs = 5
-        xs_train1 = np.split(xs_train[:(xs_train.shape[0] // procs * procs)], procs)
-        ys_train1 = np.split(ys_train[:(ys_train.shape[0] // procs * procs)], procs)
+        split = [(xs_train.shape[0] // procs) * i for i in range(procs)[1:]]
+        xs_train1 = np.split(xs_train, split)
+        ys_train1 = np.split(ys_train, split)
         
         pool = Pool(procs)
         results = []
@@ -296,17 +301,21 @@ if __name__ == '__main__':
             print('')
             
             # Make a checkpoint.
+            util.save_epoch_result('train_result', e, train_losses[e], train_err[e], val_losses[e], val_err[e])
             if val_err[e] < best_val:
                 best_val = val_err[e]
-                saver.save(sess, 'ckpt/model', global_step=e+1, write_meta_graph=True)
+                saver.save(sess, 'ckpt/model'.format(10*val_err[e]), global_step=e+1, write_meta_graph=True)
         
         # Make a final checkpoint.
         saver.save(sess, 'ckpt/model-final', write_meta_graph=True)
         print('Training time: {:.2f}'.format(time.time() - begin))
-        util.save_training_result('ckpt/training_result', train_losses, train_err, val_losses, val_err)
+        util.plot_training_result('train_result', train_losses, train_err, val_losses, val_err)
         
     del(xs_train1, xs_val, xs_train)
-    util.test('ckpt/model-final.meta', 'ckpt/model-final', xs_test, ys_test, val_batch_size)
+    test_loss, test_err = util.test('ckpt/model-final.meta', 'ckpt/model-final', xs_test, ys_test, val_batch_size)
+    f = open('train_result.txt', 'a')
+    print('Test_loss = {:.3f},  Test_err = {:.2f}'.format(test_loss, test_err), file=f)
+    f.close()
 
 
 
