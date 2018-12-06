@@ -1,5 +1,7 @@
 # Cifar10
-The Tensorflow implementation of some models including the ResNet, ResNeXt, WideResNet, PyramidNet, etc. on the Cifar-10 or Cifar-100 dataset. There are also some novel augmentation and regularization methods such as Mixup and autoAugmentation and ShakeDrop in this project. The Code is clear to read and understand, and you can learn some useful Python and TensorFlow skills including multiprocessing, pyplot, PIL, and how to feed the network with tf.data.Dataset, how to accelerate the training with multiGPUs, how to make a checkpoint and restore it, and so on.
+The Tensorflow implementation of some models including the ResNet, ResNeXt, WideResNet, PyramidNet, etc. on the Cifar-10 or Cifar-100 dataset. There are also some novel augmentation and regularization methods such as Mixup and autoAugmentation and ShakeDrop in this project. The Code is clear to read and understand, and you can learn some useful Python and TensorFlow skills including multiprocessing, pyplot, PIL, and how to feed the network with tf.data.Dataset, how to accelerate the training with multiGPUs, how to make a checkpoint and restore it, and so on.  
+
+Under construction ...
 ## Usage
 ### Dataset
 Download the python version [CIFAR-10](http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz) or [CIFAR-100](http://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz) dataset from http://www.cs.toronto.edu/~kriz/cifar.html and unzip the dataset.
