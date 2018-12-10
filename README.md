@@ -18,7 +18,7 @@ For simplicity, run the command line bewlow in the shell, Windows DOS supported 
 
 `$ python train.py`
 ## Result
-Here are some results on Cifar-10.
+Here are some results on Cifar-10.\n
 The result of the model preact ResNet18 with autoAugmentation method. The test error rate is **4.37%** for the last epoch.  
 
 `lr = 0.1 if epoch <= 100 else lr = 0.01 if epoch <= 150 else lr = 0.001,  
