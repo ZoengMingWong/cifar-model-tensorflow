@@ -17,6 +17,8 @@ As mentioned above, the command line parameters are not provided, but you can ea
 For simplicity, run the command line bewlow in the shell, Windows DOS supported as well, and *tensorflow*, *numpy*, *PIL*, *matplotlib*, *multiprocessing*, *cPickle*, *re* etc. are needed. By default the *preact ResNet18* model with *Mixup* augmentation will be trained.
 
 `$ python train.py`
+## Result
+Here are some
 ## Reference
 ### ResNet
 > Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. [_Deep Residual Learning for Image Recognition_](https://arxiv.org/abs/1512.03385). arXiv:1512.03385v1 [cs.CV] 10 Dec 2015.  
