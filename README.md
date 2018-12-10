@@ -22,17 +22,15 @@ Here are some results on Cifar-10.
 
 The result of the model preact ResNet18 with autoAugmentation method. The test error rate is **4.37%** for the last epoch.  
 
-`lr = 0.1 if epoch <= 100 else lr = 0.01 if epoch <= 150 else lr = 0.001,  
-
-epochs = 200, weight_decay = 1e-4, gradient_clipping = 5.0, momentum = 0.9, use_nestrov = True`  
+`lr = 0.1 if epoch <= 100 else lr = 0.01 if epoch <= 150 else lr = 0.001, `   
+`epochs = 200, weight_decay = 1e-4, gradient_clipping = 5.0, momentum = 0.9, use_nestrov = True`  
 
 ![image](https://github.com/ZoengMingWong/cifar-model-tensorflow/blob/master/preresnet18_autoAug.png)  
 
 The result of the model WideResNet-28-10 with autoAugmentation. The test error rate is **2.79%** for the last epoch.  
 
-`lr is cosine learning rate like autoAugmentation,  
-
-epochs = 200, weight_decay = 5e-4, gradient_clipping = 5.0, momentum = 0.9, use_nestrov = True`  
+`lr is cosine learning rate like autoAugmentation, `   
+`epochs = 200, weight_decay = 5e-4, gradient_clipping = 5.0, momentum = 0.9, use_nestrov = True`  
 
 ![image](https://github.com/ZoengMingWong/cifar-model-tensorflow/blob/master/wrn28_autoAug.png)
 ## Reference
