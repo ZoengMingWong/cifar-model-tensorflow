@@ -13,15 +13,15 @@ from multiprocessing import Pool
 import util
 
 os.environ['CUDA_DEVICES_ORDER'] = 'PCI_BUS_ID'
-os.environ['CUDA_VISIBLE_DEVICES'] = '2,3'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
 
 if __name__ == '__main__':
     
     data_path = '/home/hzm/cifar_data'  # data path
-    ckpt_meta = 'ckpt/model-1.meta' # meta checkpoint the resotre the graph
-    ckpt = 'ckpt/model-1'           # checkpoint to resotre the variables
+    ckpt_meta = 'ckpt/model-final.meta' # meta checkpoint the resotre the graph
+    ckpt = 'ckpt/model-final'           # checkpoint to resotre the variables
     classes = 10                        # total classes of the label
-    epochs = 2                        # epochs to train
+    epochs = 200                        # epochs to train
     init_lr = 0.1                       # initial learning rate
     # learning_rate should be callable function with the EPOCH as its input parameter.
     learning_rate = lambda e: init_lr if e < 100 else (init_lr / 10) if e < 150 else (init_lr / 100)
@@ -51,21 +51,22 @@ if __name__ == '__main__':
     val_batches = val_size // val_batch_size
     val_size = val_batches * val_batch_size
     
-    xs_train, xs_val = xs_train[:-val_size], xs_train[-val_size:]
-    ys_train, ys_val = ys_train[:-val_size], ys_train[-val_size:]
+    rnd = np.random.permutation(range(ys_train.shape[0]))
+    xs_train, xs_val = xs_train[rnd[:-val_size]], xs_train[rnd[-val_size:]]
+    ys_train, ys_val = ys_train[rnd[:-val_size]], ys_train[rnd[-val_size:]]
     train_batches = ys_train.shape[0] // train_batch_size
     
     ###########################################################################
     # Preprocess the validating images with multiprocessing.
     procs = 5
-    split = [(xs_val.shape[0] // procs) * i for i in range(procs)[1:]]
-    xs_val = np.split(xs_val, split)
-    ys_val = np.split(ys_val, split)
+    splits = [(xs_val.shape[0] // procs) * i for i in range(procs)[1:]]
+    xs_val = np.split(xs_val, splits)
+    ys_val = np.split(ys_val, splits)
     
     pool = Pool(procs)
     results = []
     for i in range(procs):
-        results.append(pool.apply_async(util.batch_parse, (xs_val[i], ys_val[i], False, )))
+        results.append(pool.apply_async(util.batch_parse, (xs_val[i], ys_val[i], False, mixup_alpha, autoAugment, classes)))
         
     pool.close()
     pool.join()
@@ -115,14 +116,14 @@ if __name__ == '__main__':
         # Augment the training data with multiprocess.
         print('Data preparing ...')
         procs = 5
-        split = [(xs_train.shape[0] // procs) * i for i in range(procs)[1:]]
-        xs_train1 = np.split(xs_train, split)
-        ys_train1 = np.split(ys_train, split)
+        splits = [(xs_train.shape[0] // procs) * i for i in range(procs)[1:]]
+        xs_train1 = np.split(xs_train, splits)
+        ys_train1 = np.split(ys_train, splits)
         
         pool = Pool(procs)
         results = []
         for i in range(procs):
-            results.append(pool.apply_async(util.batch_parse, (xs_train1[i], ys_train1[i], True, mixup_alpha, autoAugment, )))
+            results.append(pool.apply_async(util.batch_parse, (xs_train1[i], ys_train1[i], True, mixup_alpha, autoAugment, classes)))
         pool.close()
         pool.join()
         
@@ -158,7 +159,7 @@ if __name__ == '__main__':
             xs_train, ys_train = xs_train[rnd_samples], ys_train[rnd_samples]
             
             pool = Pool(1)
-            result = pool.apply_async(util.batch_parse, (xs_train, ys_train, True, mixup_alpha, autoAugment, ))
+            result = pool.apply_async(util.batch_parse, (xs_train, ys_train, True, mixup_alpha, autoAugment, classes))
             pool.close()
             
             for i in range(train_batches):
@@ -214,7 +215,7 @@ if __name__ == '__main__':
         util.plot_training_result('new_train_result', train_losses, train_err, val_losses, val_err)
         
     del(xs_train1, xs_val, xs_train)
-    test_loss, test_err = util.test('new_ckpt/model-final.meta', 'new_ckpt/model-final', xs_test, ys_test, val_batch_size)
+    test_loss, test_err = util.test('new_ckpt/model-final.meta', 'new_ckpt/model-final', xs_test, ys_test, val_batch_size, classes)
     f = open('new_train_result.txt', 'a')
     print('Test_loss = {:.3f},  Test_err = {:.2f}'.format(test_loss, test_err), file=f)
     f.close()

@@ -148,11 +148,22 @@ exp2_7 = [[('Equalize', 0.5, 5),        ('AutoContrast', 0.1, 2)],
           [('AutoContrast', 0.6, 1),    ('AutoContrast', 0.7, 8)],
           [('Equalize', 0.2, 0),        ('AutoContrast', 0.1, 2)],
           [('Equalize', 0.6, 9),        ('Equalize', 0.4, 4)]]
+          
+exp3_0 = [[('Equalize', 0.2, 0),        ('AutoContrast', 0.6, 0)],
+          [('Equalize', 0.2, 8),        ('Equalize', 0.6, 4)],
+          [('Color', 0.9, 9),           ('Equalize', 0.6, 6)],
+          [('AutoContrast', 0.8, 4),    ('Solarize', 0.2, 8)],
+          [('Brightness', 0.1, 3),      ('Color', 0.7, 0)]]
 
+'''
+# presented in google's open-source code
 exp0s = exp0_0 + exp0_1 + exp0_2 + exp0_3
 exp1s = exp1_0 + exp1_1 + exp1_2 + exp1_3 + exp1_4 + exp1_5 + exp1_6
 exp2s = exp2_0 + exp2_1 + exp2_2 + exp2_3 + exp2_4 + exp2_5 + exp2_6 + exp2_7
 policys = exp0s + exp1s + exp2s
+'''
+# policys in the paper
+policys = exp0_0 + exp0_1 + exp1_0 + exp2_0 + exp3_0
 
 def D2A(rangeA, digit, toInt=False):
     analog = digit * (rangeA[1] - rangeA[0]) / 10.0 + rangeA[0]

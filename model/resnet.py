@@ -162,4 +162,3 @@ def PreResNet50(img, is_training, zero_pad=False):
 
 
 
-

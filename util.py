@@ -38,17 +38,16 @@ def parse_img(filename, train=True, autoAug=True):
     img = ImageOperation.image_standarization(img)
     return img
     
-def batch_parse(xs_batch, ys_batch, train=True, mixup_alpha=0.0, autoAug=True):
+def batch_parse(xs_batch, ys_batch, train=True, mixup_alpha=0.0, autoAug=True, classes=10):
     """
     Parse a batch of images.
     """
-    ys_one_hot = np.zeros([len(ys_batch), 10], dtype='float32')
+    ys_one_hot = np.zeros([len(ys_batch), classes], dtype='float32')
     ys_one_hot[range(len(ys_batch)), ys_batch] = 1
     
     xs, ys = [], []
     if train == True and mixup_alpha > 0.0:
         shuff = np.random.permutation(range(len(xs_batch)))
-        
         for i in range(len(xs_batch)):
             x_a, y_a = parse_img(xs_batch[i], train=True, autoAug=autoAug), ys_one_hot[i]
             x_b, y_b = parse_img(xs_batch[shuff[i]], train=True, autoAug=autoAug), ys_one_hot[shuff[i]]
@@ -61,9 +60,9 @@ def batch_parse(xs_batch, ys_batch, train=True, mixup_alpha=0.0, autoAug=True):
             ys.append(y)
     return xs, ys
 
-def test(ckpt_meta, ckpt, xs_test, ys_test, test_batch_size=100):
+def test(ckpt_meta, ckpt, xs_test, ys_test, test_batch_size=100, classes=10):
     
-    xs_test, ys_test = batch_parse(xs_test, ys_test, train=False)
+    xs_test, ys_test = batch_parse(xs_test, ys_test, train=False, classes=classes)
     xs_test, ys_test = np.stack(xs_test), np.stack(ys_test)
     
     config = tf.ConfigProto()
@@ -147,8 +146,8 @@ def plot_training_result(file_name, train_loss, train_err, val_loss, val_err):
 def save_epoch_result(file_name, e, train_loss, train_err, val_loss, val_err):
     f = open(file_name + '.txt', 'a')
     print('', file=f)
-    print('Epoch {}: Train_loss = {:.3f}, Train_err = {:.2f}'.format(e+1, train_loss[e], train_err[e]), file=f)
-    print('Epoch {}:   Val_loss = {:.3f},   Val_err = {:.2f}'.format(e+1, val_loss[e], val_err[e]), file=f)
+    print('Epoch {}: Train_loss = {:.3f}, Train_err = {:.2f}'.format(e+1, train_loss, train_err), file=f)
+    print('Epoch {}:   Val_loss = {:.3f},   Val_err = {:.2f}'.format(e+1, val_loss, val_err), file=f)
     print('', file=f)
     f.close()
     

@@ -14,7 +14,7 @@ from model import layers, resnet, resnext, wideResnet, pyramidNet, shakeDrop
 import util
 
 os.environ['CUDA_DEVICES_ORDER'] = 'PCI_BUS_ID'
-os.environ['CUDA_VISIBLE_DEVICES'] = '2'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Below are some typical models in papers, you can define some other models yourself.
 # The model must have the interface `model_name(input, training, [option])`, 
@@ -86,14 +86,14 @@ if __name__ == '__main__':
     ###########################################################################
     # Preprocess the validating images with multiprocessing.
     procs = 5
-    split = [(xs_val.shape[0] // procs) * i for i in range(procs)[1:]]
-    xs_val = np.split(xs_val, split)
-    ys_val = np.split(ys_val, split)
+    splits = [(xs_val.shape[0] // procs) * i for i in range(procs)[1:]]
+    xs_val = np.split(xs_val, splits)
+    ys_val = np.split(ys_val, splits)
     
     pool = Pool(procs)
     results = []
     for i in range(procs):
-        results.append(pool.apply_async(util.batch_parse, (xs_val[i], ys_val[i], False, )))
+        results.append(pool.apply_async(util.batch_parse, (xs_val[i], ys_val[i], False, mixup_alpha, autoAugment, classes)))
         
     pool.close()
     pool.join()
@@ -121,8 +121,10 @@ if __name__ == '__main__':
         batch_size = tf.placeholder(tf.int64, shape=[], name='batch_size')
         dataset = data.Dataset.from_tensor_slices((xs, ys)).batch(batch_size)
         data_loader = dataset.make_initializable_iterator()
-        tf.add_to_collection('dev_batch_size', tf.to_int32(batch_size))
         img, label = data_loader.get_next(name='batch_loader')
+        
+        # The actual batch size on each device. if you use multiGPUs, the total batch would be splited.
+        tf.add_to_collection('dev_batch_size', tf.to_int32(batch_size))
     
     # Distinguish the training and testing states for BN and dropout.
     train_flag = tf.placeholder(tf.bool, shape=[], name='training_flag')
@@ -200,6 +202,7 @@ if __name__ == '__main__':
     """
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
+    # config.gpu_options.per_process_gpu_memory_fraction = 0.25
     
     with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
@@ -208,14 +211,14 @@ if __name__ == '__main__':
         # Augment the training data with multiprocess.
         print('Data preparing ...')
         procs = 5
-        split = [(xs_train.shape[0] // procs) * i for i in range(procs)[1:]]
-        xs_train1 = np.split(xs_train, split)
-        ys_train1 = np.split(ys_train, split)
+        splits = [(xs_train.shape[0] // procs) * i for i in range(procs)[1:]]
+        xs_train1 = np.split(xs_train, splits)
+        ys_train1 = np.split(ys_train, splits)
         
         pool = Pool(procs)
         results = []
         for i in range(procs):
-            results.append(pool.apply_async(util.batch_parse, (xs_train1[i], ys_train1[i], True, mixup_alpha, autoAugment, )))
+            results.append(pool.apply_async(util.batch_parse, (xs_train1[i], ys_train1[i], True, mixup_alpha, autoAugment, classes)))
         pool.close()
         pool.join()
         
@@ -236,8 +239,8 @@ if __name__ == '__main__':
         train_losses, train_err = np.zeros([2, epochs])
         val_losses, val_err = np.zeros([2, epochs])
         best_val = 100.0
+        
         for e in range(epochs):
-            
             """
             -------------------------------------------------------------------
             Training stage.
@@ -252,7 +255,7 @@ if __name__ == '__main__':
             xs_train, ys_train = xs_train[rnd_samples], ys_train[rnd_samples]
             
             pool = Pool(1)
-            result = pool.apply_async(util.batch_parse, (xs_train, ys_train, True, mixup_alpha, autoAugment, ))
+            result = pool.apply_async(util.batch_parse, (xs_train, ys_train, True, mixup_alpha, autoAugment, classes))
             pool.close()
             ###################################################################
             
@@ -312,7 +315,7 @@ if __name__ == '__main__':
         util.plot_training_result('train_result', train_losses, train_err, val_losses, val_err)
         
     del(xs_train1, xs_val, xs_train)
-    test_loss, test_err = util.test('ckpt/model-final.meta', 'ckpt/model-final', xs_test, ys_test, val_batch_size)
+    test_loss, test_err = util.test('ckpt/model-final.meta', 'ckpt/model-final', xs_test, ys_test, val_batch_size, classes)
     f = open('train_result.txt', 'a')
     print('Test_loss = {:.3f},  Test_err = {:.2f}'.format(test_loss, test_err), file=f)
     f.close()

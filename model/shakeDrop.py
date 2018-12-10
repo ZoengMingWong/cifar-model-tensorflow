@@ -4,6 +4,7 @@ Created on Thu Nov 22 16:53:22 2018
 
 @author: hzm
 """
+from __future__ import division
 import tensorflow as tf
 from . import layers
 
@@ -48,7 +49,7 @@ def BotPyramidNet(img, alpha, blocks, strides, chans, bottleneck, is_training, z
         out = layers.batch_normalization(out, is_training, name='bn')
     
     for i in range(units):
-        bern_prob = 1.0 - (i + 1) / units * 0.5
+        bern_prob = 1.0 - 0.5 * (i + 1) / units
         bottleneck += add_chans
         out = BotPyramidBlock(out, stride[i], int(bottleneck), bern_prob, is_training, zero_pad=zero_pad, name='Block_'+str(i))
         

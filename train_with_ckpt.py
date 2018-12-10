@@ -60,21 +60,22 @@ if __name__ == '__main__':
     val_batches = val_size // val_batch_size
     val_size = val_batches * val_batch_size
     
-    xs_train, xs_val = xs_train[:-val_size], xs_train[-val_size:]
-    ys_train, ys_val = ys_train[:-val_size], ys_train[-val_size:]
+    rnd = np.random.permutation(range(ys_train.shape[0]))
+    xs_train, xs_val = xs_train[rnd[:-val_size]], xs_train[rnd[-val_size:]]
+    ys_train, ys_val = ys_train[rnd[:-val_size]], ys_train[rnd[-val_size:]]
     train_batches = ys_train.shape[0] // train_batch_size
     
     ###########################################################################
     # Preprocess the validating images with multiprocessing.
     procs = 5
-    split = [(xs_val.shape[0] // procs) * i for i in range(procs)[1:]]
-    xs_val = np.split(xs_val, split)
-    ys_val = np.split(ys_val, split)
+    splits = [(xs_val.shape[0] // procs) * i for i in range(procs)[1:]]
+    xs_val = np.split(xs_val, splits)
+    ys_val = np.split(ys_val, splits)
     
     pool = Pool(procs)
     results = []
     for i in range(procs):
-        results.append(pool.apply_async(util.batch_parse, (xs_val[i], ys_val[i], False, )))
+        results.append(pool.apply_async(util.batch_parse, (xs_val[i], ys_val[i], False, mixup_alpha, autoAugment, classes)))
         
     pool.close()
     pool.join()
@@ -102,9 +103,9 @@ if __name__ == '__main__':
         saver.restore(sess, ckpt)
         
         graph = tf.get_default_graph()
-        xs = graph.get_operation_by_name('xs').outputs[0]
-        ys = graph.get_operation_by_name('ys').outputs[0]
-        batch_size = graph.get_operation_by_name('batch_size').outputs[0]
+        xs = graph.get_operation_by_name('Data_loader/xs').outputs[0]
+        ys = graph.get_operation_by_name('Data_loader/ys').outputs[0]
+        batch_size = graph.get_operation_by_name('Data_loader/batch_size').outputs[0]
         train_flag = graph.get_operation_by_name('training_flag').outputs[0]
         lr = graph.get_operation_by_name('lr').outputs[0]
         
@@ -116,7 +117,7 @@ if __name__ == '__main__':
         # define a new optimizer
         if optimizer is not None:
             if optimizer is tf.train.MomentumOptimizer:
-                optim = optimizer(lr, momentum=0.9, name='new_optimizer')
+                optim = optimizer(lr, momentum=0.9, use_nesterov=use_nesterov, name='new_optimizer')
             else:
                 optim = optimizer(lr, name='new_optimizer')
             
@@ -140,18 +141,23 @@ if __name__ == '__main__':
             
             saver = tf.train.Saver(var_list=var_list, max_to_keep=5)
         
+        # gather the variables to save
+        params = 0
+        for var in tf.trainable_variables():
+            params += np.prod(var.get_shape().as_list())
+        
         #######################################################################
         # Augment the training data with multiprocess.
         print('Data preparing ...')
         procs = 5
-        split = [(xs_train.shape[0] // procs) * i for i in range(procs)[1:]]
-        xs_train1 = np.split(xs_train, split)
-        ys_train1 = np.split(ys_train, split)
+        splits = [(xs_train.shape[0] // procs) * i for i in range(procs)[1:]]
+        xs_train1 = np.split(xs_train, splits)
+        ys_train1 = np.split(ys_train, splits)
         
         pool = Pool(procs)
         results = []
         for i in range(procs):
-            results.append(pool.apply_async(util.batch_parse, (xs_train1[i], ys_train1[i], True, mixup_alpha, autoAugment, )))
+            results.append(pool.apply_async(util.batch_parse, (xs_train1[i], ys_train1[i], True, mixup_alpha, autoAugment, classes)))
         pool.close()
         pool.join()
         
@@ -165,6 +171,7 @@ if __name__ == '__main__':
         #######################################################################
         
         print('Training ...')
+        print('Trainable parameters: {}'.format(params))
         begin = time.time()
         
         rnd_samples = np.arange(ys_train.shape[0])
@@ -186,7 +193,7 @@ if __name__ == '__main__':
             xs_train, ys_train = xs_train[rnd_samples], ys_train[rnd_samples]
             
             pool = Pool(1)
-            result = pool.apply_async(util.batch_parse, (xs_train, ys_train, True, mixup_alpha, autoAugment, ))
+            result = pool.apply_async(util.batch_parse, (xs_train, ys_train, True, mixup_alpha, autoAugment, classes))
             pool.close()
             ###################################################################
             
@@ -243,7 +250,7 @@ if __name__ == '__main__':
         util.plot_training_result('new_train_result', train_losses, train_err, val_losses, val_err)
         
     del(xs_train1, xs_val, xs_train)
-    test_loss, test_err = util.test('new_ckpt/model-final.meta', 'new_ckpt/model-final', xs_test, ys_test, val_batch_size)
+    test_loss, test_err = util.test('new_ckpt/model-final.meta', 'new_ckpt/model-final', xs_test, ys_test, val_batch_size, classes)
     f = open('new_train_result.txt', 'a')
     print('Test_loss = {:.3f},  Test_err = {:.2f}'.format(test_loss, test_err), file=f)
     f.close()
