@@ -10,27 +10,27 @@ For convenience, the project doesn't use the original dataset as most other proj
 
 You can do it with the command below in the linux shell. Note that the project doesn't provide the command line parameters, you should config them in the corresponding files. You can check whether the images is correctly saved after the command.
 
-`$ python cifar_to_png.py`
+  $ python cifar_to_png.py
 ### Training
 As mentioned above, the command line parameters are not provided, but you can easily config the parameters in the begining of the codes. There are two versions of training files, the single/no GPU one and the multiGPUs one. The single/no GPU one, named `train.py`, can be executed without any GPUs but just CPUs (although it's very slow), or with only one GPU. On the contrary, the multiGPUs one, named `train_multigpus.py`, must executed with at least one GPU, with data parallelism, which means that all GPUs have the same compute graph. Both two codes would saved the best result as a checkpoint while training, and you can test or retrain the model with a checkpoint by running the `test.py` or `train_with_ckpt.py` and its multiGPUs version `train_with_ckpt_multigpus.py`, respectively.  
 
 For simplicity, run the command line bewlow in the shell, Windows DOS supported as well, and *tensorflow*, *numpy*, *PIL*, *matplotlib*, *multiprocessing*, *cPickle*, *re* etc. are needed. By default the *preact ResNet18* model with *Mixup* augmentation will be trained.
 
-`$ python train.py`
+  $ python train.py
 ## Result
 Here are some results on Cifar-10.  
 
-The result of the model preact ResNet18 with autoAugmentation method. The test error rate is **4.37%** for the last epoch.  
+The result of the model _preact ResNet18_ with autoAugmentation method. The test error rate is **4.37%** for the last epoch.  
 
-`lr = 0.1 if epoch <= 100 else lr = 0.01 if epoch <= 150 else lr = 0.001, `   
-`epochs = 200, weight_decay = 1e-4, gradient_clipping = 5.0, momentum = 0.9, use_nestrov = True`  
+  lr = 0.1 if epoch <= 100 else lr = 0.01 if epoch <= 150 else lr = 0.001,    
+  epochs = 200, weight_decay = 1e-4, gradient_clipping = 5.0, momentum = 0.9, use_nestrov = True  
 
 ![image](https://github.com/ZoengMingWong/cifar-model-tensorflow/blob/master/preresnet18_autoAug.png)  
 
-The result of the model WideResNet-28-10 with autoAugmentation. The test error rate is **2.79%** for the last epoch.  
+The result of the model _WideResNet-28-10_ with autoAugmentation. The test error rate is **2.79%** for the last epoch.  
 
-`lr is cosine learning rate like autoAugmentation, `   
-`epochs = 200, weight_decay = 5e-4, gradient_clipping = 5.0, momentum = 0.9, use_nestrov = True`  
+  lr is cosine learning rate like autoAugmentation,    
+  epochs = 200, weight_decay = 5e-4, gradient_clipping = 5.0, momentum = 0.9, use_nestrov = True``  
 
 ![image](https://github.com/ZoengMingWong/cifar-model-tensorflow/blob/master/wrn28_autoAug.png)
 ## Reference
