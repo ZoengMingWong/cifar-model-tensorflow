@@ -21,7 +21,8 @@ def PreActBlock(in_feat, stride, out_chans, is_training, zero_pad=True, name=Non
         
         if in_feat.shape[1:] != bn2.shape[1:]:
             if zero_pad == False:
-                short_cut = layers.conv_shortcut(in_feat, out_chans, [stride]*2, is_training, name='conv_shortcut')
+                short_cut = tf.nn.relu(bn0, name='relu0')
+                short_cut = layers.conv2d(short_cut, out_chans, [1, 1], [stride]*2, name='conv_shortcut')
             else:
                 short_cut = layers.zero_pad_shortcut(in_feat, out_chans, [stride]*2, name='zero_shortcut')
             out_feat = tf.add(bn2, short_cut, name='add')
@@ -46,7 +47,8 @@ def PreActBottleneck(in_feat, stride, bottleneck, is_training, zero_pad=True, na
         
         if in_feat.shape[1:] != bn3.shape[1:]:
             if zero_pad == False:
-                short_cut = layers.conv_shortcut(in_feat, bottleneck*4, [stride]*2, is_training, name='conv_shortcut')
+                short_cut = tf.nn.relu(bn0, name='relu0')
+                short_cut = layers.conv2d(short_cut, bottleneck*4, [1, 1], [stride]*2, name='conv_shortcut')
             else:
                 short_cut = layers.zero_pad_shortcut(in_feat, bottleneck*4, [stride]*2, name='pad_shortcut')
             out_feat = tf.add(bn3, short_cut, name='add')

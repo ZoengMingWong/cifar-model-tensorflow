@@ -154,11 +154,11 @@ def ResNet18(img, is_training, zero_pad=False):
 def PreResNet18(img, is_training, zero_pad=False):
     return ResNet(img, [2, 2, 2, 2], [1, 2, 2, 2], 64, is_training=is_training, preAct=True, zero_pad=zero_pad)
     
-def ResNet50(img, is_training, zero_pad=False):
-    return BottleneckResNet(img, [3, 4, 6, 3], [1, 2, 2, 2], 64, 64, is_training=is_training, preAct=False, zero_pad=zero_pad)
-    
 def PreResNet50(img, is_training, zero_pad=False):
     return BottleneckResNet(img, [3, 4, 6, 3], [1, 2, 2, 2], 64, 64, is_training=is_training, preAct=True, zero_pad=zero_pad)
+    
+def PreResNet101(img, is_training, zero_pad=False):
+    return BottleneckResNet(img, [3, 4, 23, 3], [1, 2, 2, 2], 64, 64, is_training=is_training, preAct=True, zero_pad=zero_pad)
 
 
 

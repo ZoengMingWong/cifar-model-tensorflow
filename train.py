@@ -19,11 +19,13 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 # Below are some typical models in papers, you can define some other models yourself.
 # The model must have the interface `model_name(input, training, [option])`, 
 # and return the features before the fully connected layer.
-model_dict = {'ResNet18': resnet.ResNet18, 'PreResNet18': resnet.PreResNet18, 
-              'ResNet50': resnet.ResNet50, 'PreResNet50': resnet.PreResNet50, 
+model_dict = {'ResNet18': resnet.ResNet18, 
+              'PreResNet18': resnet.PreResNet18, 
+              'PreResNet50': resnet.PreResNet50, 
+              'PreResNet101': resnet.PreResNet101, 
               'PreResNeXt29_32x4d': resnext.ResNeXt29_32x4d, 
               'PreResNeXt50_32x4d': resnext.ResNeXt50_32x4d, 
-              'WRN_28_10': wideResnet.WRN_28_10, 'WRN_16_4': wideResnet.WRN_16_4,
+              'WRN_28_10': wideResnet.WRN_28_10, 
               'PyramidNet_a48_d110': pyramidNet.PyramidNet_a48_d110, 
               'BotPyramidNet_a270_d164': pyramidNet.BotPyramidNet_a270_d164,
               'BotPyramidNet_a200_d272': pyramidNet.BotPyramidNet_a200_d272,
@@ -36,19 +38,19 @@ if __name__ == '__main__':
     classes = 10                        # total classes of the label
     epochs = 200                        # epochs to train
     init_lr = 0.1                       # initial learning rate
+    learning_rate = lambda e: init_lr if e < 100 else (init_lr / 10) if e < 150 else (init_lr / 100)
     # `learning_rate` should be a callable function with the EPOCH as its input parameter.
     # You can also define the `learning_rate` for every batch below yourself.
-    learning_rate = lambda e: init_lr if e < 100 else (init_lr / 10) if e < 150 else (init_lr / 100)
     
     optimizer = tf.train.MomentumOptimizer  # the optimizer to use
     weight_decay = 1e-4                 # weight decay with L2 regularization
     grad_clip = 5.0                     # gradient clipping to avoid exploration
-    
     zero_pad = False                    # whether zero-padding or 1x1 conv for the shortcut channels mapping
     momentum = 0.9                      # the momentum of the Momentum optimizer
     use_nesterov = True                 # whether use the Nesterov Momentum Optimizer
     save_optim = False                  # whether save the variables of the optimizer while making a checkpoint
     
+    use_val = False                     # whether apply the validation with part of training set
     val_ratio = 0.1                     # take a part of the traing set to apply validation
     train_batch_size = 128              # batch size of the training set
     val_batch_size = 100                # batch size of the validating set
@@ -57,31 +59,37 @@ if __name__ == '__main__':
     # and a non-zero float number represents the alpha (here equal to beta) of the BETA distribution.
     # Set `AUTOAUGMENT` to TRUE to enable the auto-Augmentation introduced by Google Brain.
     # Set mixup_alpha = 0 and autoAugment = False to use the baseline augment methods.
-    mixup_alpha = 1.0
-    autoAugment = False
+    mixup_alpha = 0.0
+    autoAugment = True
     
     """
     ---------------------------------------------------------------------------
     Gather the dataset.
     ---------------------------------------------------------------------------
     """
-    np.random.seed(0)
     fs = os.listdir(os.path.join(data_path, 'train'))
     xs_train = np.array([os.path.join(data_path, 'train', f) for f in fs])
     ys_train = np.array([int(re.split('[_.]', f)[1]) for f in fs])
+    
     fs = os.listdir(os.path.join(data_path, 'test'))
     xs_test = np.array([os.path.join(data_path, 'test', f) for f in fs])
     ys_test = np.array([int(re.split('[_.]', f)[1]) for f in fs])
     
-    # Take a part of the traing set as the validation set.
-    val_size = int(ys_train.shape[0] * val_ratio)
-    val_batches = val_size // val_batch_size
-    val_size = val_batches * val_batch_size
-    
-    rnd = np.random.permutation(range(ys_train.shape[0]))
-    xs_train, xs_val = xs_train[rnd[:-val_size]], xs_train[rnd[-val_size:]]
-    ys_train, ys_val = ys_train[rnd[:-val_size]], ys_train[rnd[-val_size:]]
-    train_batches = ys_train.shape[0] // train_batch_size
+    if use_val == True:
+        # Take a part of the traing set as the validation set.
+        val_size = int(ys_train.shape[0] * val_ratio)
+        val_batches = val_size // val_batch_size
+        val_size = val_batches * val_batch_size
+        
+        rnd = np.random.permutation(range(ys_train.shape[0]))
+        xs_val, xs_train = xs_train[rnd[:val_size]], xs_train[rnd[val_size:]]
+        ys_val, ys_train = ys_train[rnd[:val_size]], ys_train[rnd[val_size:]]
+    else:
+        xs_val, ys_val = np.copy(xs_test), np.copy(ys_test)
+        val_size = xs_val.shape[0]
+        val_batches = val_size // val_batch_size
+        
+    train_batches = xs_train.shape[0] // train_batch_size
     
     ###########################################################################
     # Preprocess the validating images with multiprocessing.
@@ -123,7 +131,7 @@ if __name__ == '__main__':
         data_loader = dataset.make_initializable_iterator()
         img, label = data_loader.get_next(name='batch_loader')
         
-        # The actual batch size on each device. if you use multiGPUs, the total batch would be splited.
+        # The actual batch size on each device. if you use multiGPUs, the total batch should be splited.
         tf.add_to_collection('dev_batch_size', tf.to_int32(batch_size))
     
     # Distinguish the training and testing states for BN and dropout.

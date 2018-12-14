@@ -48,10 +48,10 @@ if __name__ == '__main__':
     Gather the dataset.
     ---------------------------------------------------------------------------
     """
-    np.random.seed(0)
     fs = os.listdir(os.path.join(data_path, 'train'))
     xs_train = np.array([os.path.join(data_path, 'train', f) for f in fs])
     ys_train = np.array([int(re.split('[_.]', f)[1]) for f in fs])
+    
     fs = os.listdir(os.path.join(data_path, 'test'))
     xs_test = np.array([os.path.join(data_path, 'test', f) for f in fs])
     ys_test = np.array([int(re.split('[_.]', f)[1]) for f in fs])
@@ -61,8 +61,8 @@ if __name__ == '__main__':
     val_size = val_batches * val_batch_size
     
     rnd = np.random.permutation(range(ys_train.shape[0]))
-    xs_train, xs_val = xs_train[rnd[:-val_size]], xs_train[rnd[-val_size:]]
-    ys_train, ys_val = ys_train[rnd[:-val_size]], ys_train[rnd[-val_size:]]
+    xs_val, xs_train = xs_train[rnd[:val_size]], xs_train[rnd[val_size:]]
+    ys_val, ys_train = ys_train[rnd[:val_size]], ys_train[rnd[val_size:]]
     train_batches = ys_train.shape[0] // train_batch_size
     
     ###########################################################################

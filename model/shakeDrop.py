@@ -27,7 +27,8 @@ def BotPyramidBlock(in_feat, stride, bottleneck, bern_prob, is_training, zero_pa
         
         if in_feat.shape[1:] != shake.shape[1:]:
             if zero_pad == False:
-                short_cut = layers.conv_shortcut(in_feat, bottleneck*4, [stride]*2, is_training, name='conv_shortcut')
+                short_cut = tf.nn.relu(bn0, name='relu0')
+                short_cut = layers.conv2d(short_cut, bottleneck*4, [1, 1], [stride]*2, name='conv_shortcut')
             else:
                 short_cut = layers.zero_pad_shortcut(in_feat, bottleneck*4, [stride]*2, name='pad_shortcut')
             out_feat = tf.add(shake, short_cut, name='add')

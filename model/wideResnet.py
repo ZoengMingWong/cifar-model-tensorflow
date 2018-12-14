@@ -84,9 +84,6 @@ def googleWRN(img, blocks, strides, k, chans, is_training, dropout=0.0, zero_pad
 def WRN_40_2(img, is_training, dropout=0.0, zero_pad=False):
     return WideResNet(img, [6, 6, 6], [1, 2, 2], 2, 16, is_training, dropout, zero_pad=zero_pad)
 
-def WRN_16_4(img, is_training, dropout=0.0, zero_pad=False):
-    return WideResNet(img, [2, 2, 2], [1, 2, 2], 4, 16, is_training, dropout, zero_pad=zero_pad)
-
 def WRN_28_10(img, is_training, dropout=0.0, zero_pad=False):
     return WideResNet(img, [4, 4, 4], [1, 2, 2], 10, 16, is_training, dropout, zero_pad=zero_pad)
     

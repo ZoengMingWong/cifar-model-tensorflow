@@ -13,8 +13,6 @@ import tensorflow as tf
 import numpy as np
 from model import ImageOperation, ImagePolicy
 
-np.random.seed(0)
-    
 def parse_time(sec):
     h = int(sec // 3600)
     m = int(sec % 3600 // 60)
@@ -24,6 +22,12 @@ def parse_time(sec):
 def parse_img(filename, train=True, autoAug=True):
     """
     Parse an image from its filename, randomly disturb and standarize it.
+    input:
+        filename: string, a single image, .png or .jpg.
+        train: bool, if it is a sample from the training set.
+        autoAug: bool, whether apply the auto-augmentation.
+    return:
+        A standarized numpy array with/without data augmentation.
     """
     img = Image.open(filename)
     if train == True:
@@ -34,13 +38,23 @@ def parse_img(filename, train=True, autoAug=True):
         img = ImageOperation.random_flip_left_right(img)
         if autoAug == True:
             img = ImageOperation.cutout(img, 16)
-        
     img = ImageOperation.image_standarization(img)
     return img
-    
+
 def batch_parse(xs_batch, ys_batch, train=True, mixup_alpha=0.0, autoAug=True, classes=10):
     """
     Parse a batch of images.
+    input:
+        xs_batch: list or array of the images' filenames (strings).
+        ys_batch: list or array of the images' labels (NOT the one-hot).
+        train: bool, if it is a sample from the training set.
+        mixup_alpha: float, if <= 0, no mixup-augmentation; 
+            if > 0, the batch would be mixup with the randomly shuffled batch, 
+            and the beta distribution would use the mixup_alpha as input parameters.
+        autoAug: bool, whether apply the auto-augmentation.
+        classes: int, the total classes of the images.
+    return:
+        A list of standarized numpy array with/without data augmentation.
     """
     ys_one_hot = np.zeros([len(ys_batch), classes], dtype='float32')
     ys_one_hot[range(len(ys_batch)), ys_batch] = 1
@@ -48,10 +62,11 @@ def batch_parse(xs_batch, ys_batch, train=True, mixup_alpha=0.0, autoAug=True, c
     xs, ys = [], []
     if train == True and mixup_alpha > 0.0:
         shuff = np.random.permutation(range(len(xs_batch)))
+        lams = np.random.beta(mixup_alpha, mixup_alpha, len(xs_batch))
         for i in range(len(xs_batch)):
             x_a, y_a = parse_img(xs_batch[i], train=True, autoAug=autoAug), ys_one_hot[i]
             x_b, y_b = parse_img(xs_batch[shuff[i]], train=True, autoAug=autoAug), ys_one_hot[shuff[i]]
-            lam = np.random.beta(mixup_alpha, mixup_alpha)
+            lam = lams[i]
             xs.append(lam * x_a + (1 - lam) * x_b)
             ys.append(lam * y_a + (1 - lam) * y_b)
     else:
@@ -61,7 +76,18 @@ def batch_parse(xs_batch, ys_batch, train=True, mixup_alpha=0.0, autoAug=True, c
     return xs, ys
 
 def test(ckpt_meta, ckpt, xs_test, ys_test, test_batch_size=100, classes=10):
-    
+    """
+    Test the model with a TensorFlow checkpoint.
+    input:
+        ckpt_meta: a checkpoint with the postfix .meta which stores the graph.
+        ckpt: a standard TensorFlow checkpoint, the filename before .data and .index.
+        xs_test: list or array of the images' filenames (strings).
+        ys_test: list or array of the images' labels (NOT the one-hot).
+        test_batch_size: int, the batch size to feed datas.
+        classes: int, the total classes of the images.
+    return:
+        (loss, error_rate)
+    """
     xs_test, ys_test = batch_parse(xs_test, ys_test, train=False, classes=classes)
     xs_test, ys_test = np.stack(xs_test), np.stack(ys_test)
     
@@ -117,9 +143,10 @@ def average_gradients(tower_grads):
     return average_grads
 
 def plot_training_result(file_name, train_loss, train_err, val_loss, val_err):
-        
+    """
+    Plot the training and validation losses and errors of all epochs into an image.
+    """
     epochs = len(train_loss)
-    
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
     l1 = ax1.plot(range(epochs), train_loss, 'b--', label='train_loss', lw=1, alpha=0.8)
@@ -144,6 +171,9 @@ def plot_training_result(file_name, train_loss, train_err, val_loss, val_err):
     plt.savefig(file_name + '.png', dpi='figure')
     
 def save_epoch_result(file_name, e, train_loss, train_err, val_loss, val_err):
+    """
+    Save the training and validation loss and error of a single epoch into a text file.
+    """
     f = open(file_name + '.txt', 'a')
     print('', file=f)
     print('Epoch {}: Train_loss = {:.3f}, Train_err = {:.2f}'.format(e+1, train_loss, train_err), file=f)

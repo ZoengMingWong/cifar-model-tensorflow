@@ -19,5 +19,6 @@ if __name__ == '__main__':
     xs_test = np.array([os.path.join(data_path, 'test', f) for f in fs])
     ys_test = np.array([int(re.split('[_.]', f)[1]) for f in fs])
     
+    classes = 10
     batch_size = 100
-    util.test('ckpt/model-1.meta', 'ckpt/model-1', xs_test, ys_test, batch_size)
+    util.test('ckpt/model-final.meta', 'ckpt/model-final', xs_test, ys_test, batch_size, classes)

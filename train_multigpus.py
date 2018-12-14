@@ -17,10 +17,13 @@ os.environ['CUDA_DEVICES_ORDER'] = 'PCI_BUS_ID'
 os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
 
 # Below are some typical models in papers, you can define some other models yourself.
-model_dict = {'ResNet18': resnet.ResNet18, 'PreResNet18': resnet.PreResNet18, 
-              'ResNet50': resnet.ResNet50, 'PreResNet50': resnet.PreResNet50, 
+model_dict = {'ResNet18': resnet.ResNet18, 
+              'PreResNet18': resnet.PreResNet18, 
+              'PreResNet50': resnet.PreResNet50, 
+              'PreResNet101': resnet.PreResNet101, 
               'PreResNeXt29_32x4d': resnext.ResNeXt29_32x4d, 
-              'WRN_28_10': wideResnet.WRN_28_10, 'WRN_16_4': wideResnet.WRN_16_4,
+              'PreResNeXt50_32x4d': resnext.ResNeXt50_32x4d, 
+              'WRN_28_10': wideResnet.WRN_28_10, 
               'PyramidNet_a48_d110': pyramidNet.PyramidNet_a48_d110, 
               'BotPyramidNet_a270_d164': pyramidNet.BotPyramidNet_a270_d164,
               'BotPyramidNet_a200_d272': pyramidNet.BotPyramidNet_a200_d272,
@@ -62,10 +65,10 @@ if __name__ == '__main__':
     Gather the dataset.
     ---------------------------------------------------------------------------
     """
-    np.random.seed(0)
     fs = os.listdir(os.path.join(data_path, 'train'))
     xs_train = np.array([os.path.join(data_path, 'train', f) for f in fs])
     ys_train = np.array([int(re.split('[_.]', f)[1]) for f in fs])
+    
     fs = os.listdir(os.path.join(data_path, 'test'))
     xs_test = np.array([os.path.join(data_path, 'test', f) for f in fs])
     ys_test = np.array([int(re.split('[_.]', f)[1]) for f in fs])
@@ -74,8 +77,9 @@ if __name__ == '__main__':
     val_batches = val_size // val_batch_size
     val_size = val_batches * val_batch_size
     
-    xs_train, xs_val = xs_train[:-val_size], xs_train[-val_size:]
-    ys_train, ys_val = ys_train[:-val_size], ys_train[-val_size:]
+    rnd = np.random.permutation(range(ys_train.shape[0]))
+    xs_val, xs_train = xs_train[rnd[:val_size]], xs_train[rnd[val_size:]]
+    ys_val, ys_train = ys_train[rnd[:val_size]], ys_train[rnd[val_size:]]
     train_batches = ys_train.shape[0] // train_batch_size
     
     ###########################################################################
