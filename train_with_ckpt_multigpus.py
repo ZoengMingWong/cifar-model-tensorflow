@@ -26,6 +26,7 @@ if __name__ == '__main__':
     # learning_rate should be callable function with the EPOCH as its input parameter.
     learning_rate = lambda e: init_lr if e < 100 else (init_lr / 10) if e < 150 else (init_lr / 100)
     
+    use_val = False                     # whether apply the validation with part of training set
     val_ratio = 0.1                     # take a part of the traing set to apply validation
     train_batch_size = 128              # batch size of the training set
     val_batch_size = 100                # batch size of the validating set
@@ -47,14 +48,21 @@ if __name__ == '__main__':
     xs_test = np.array([os.path.join(data_path, 'test', f) for f in fs])
     ys_test = np.array([int(re.split('[_.]', f)[1]) for f in fs])
     
-    val_size = int(ys_train.shape[0] * val_ratio)
-    val_batches = val_size // val_batch_size
-    val_size = val_batches * val_batch_size
-    
-    rnd = np.random.permutation(range(ys_train.shape[0]))
-    xs_val, xs_train = xs_train[rnd[:val_size]], xs_train[rnd[val_size:]]
-    ys_val, ys_train = ys_train[rnd[:val_size]], ys_train[rnd[val_size:]]
-    train_batches = ys_train.shape[0] // train_batch_size
+    if use_val == True:
+        # Take a part of the traing set as the validation set.
+        val_size = int(ys_train.shape[0] * val_ratio)
+        val_batches = val_size // val_batch_size
+        val_size = val_batches * val_batch_size
+        
+        rnd = np.random.permutation(range(ys_train.shape[0]))
+        xs_val, xs_train = xs_train[rnd[:val_size]], xs_train[rnd[val_size:]]
+        ys_val, ys_train = ys_train[rnd[:val_size]], ys_train[rnd[val_size:]]
+    else:
+        xs_val, ys_val = np.copy(xs_test), np.copy(ys_test)
+        val_size = xs_val.shape[0]
+        val_batches = val_size // val_batch_size
+        
+    train_batches = xs_train.shape[0] // train_batch_size
     
     ###########################################################################
     # Preprocess the validating images with multiprocessing.
