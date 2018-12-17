@@ -1,0 +1,801 @@
+
+Epoch 1: Train_loss = 2.103, Train_err = 63.29
+Epoch 1:   Val_loss = 1.424,   Val_err = 45.55
+
+
+Epoch 2: Train_loss = 1.725, Train_err = 44.64
+Epoch 2:   Val_loss = 1.088,   Val_err = 31.63
+
+
+Epoch 3: Train_loss = 1.588, Train_err = 37.22
+Epoch 3:   Val_loss = 0.936,   Val_err = 24.53
+
+
+Epoch 4: Train_loss = 1.510, Train_err = 32.89
+Epoch 4:   Val_loss = 0.854,   Val_err = 22.18
+
+
+Epoch 5: Train_loss = 1.445, Train_err = 30.26
+Epoch 5:   Val_loss = 0.904,   Val_err = 25.10
+
+
+Epoch 6: Train_loss = 1.411, Train_err = 28.69
+Epoch 6:   Val_loss = 0.805,   Val_err = 21.02
+
+
+Epoch 7: Train_loss = 1.375, Train_err = 26.83
+Epoch 7:   Val_loss = 0.810,   Val_err = 21.44
+
+
+Epoch 8: Train_loss = 1.347, Train_err = 25.59
+Epoch 8:   Val_loss = 0.732,   Val_err = 18.76
+
+
+Epoch 9: Train_loss = 1.325, Train_err = 24.72
+Epoch 9:   Val_loss = 0.674,   Val_err = 15.77
+
+
+Epoch 10: Train_loss = 1.313, Train_err = 24.14
+Epoch 10:   Val_loss = 0.658,   Val_err = 15.02
+
+
+Epoch 11: Train_loss = 1.295, Train_err = 23.18
+Epoch 11:   Val_loss = 0.616,   Val_err = 14.13
+
+
+Epoch 12: Train_loss = 1.279, Train_err = 22.90
+Epoch 12:   Val_loss = 0.605,   Val_err = 14.12
+
+
+Epoch 13: Train_loss = 1.265, Train_err = 22.14
+Epoch 13:   Val_loss = 0.608,   Val_err = 14.26
+
+
+Epoch 14: Train_loss = 1.253, Train_err = 21.69
+Epoch 14:   Val_loss = 0.660,   Val_err = 16.06
+
+
+Epoch 15: Train_loss = 1.234, Train_err = 21.10
+Epoch 15:   Val_loss = 0.558,   Val_err = 12.32
+
+
+Epoch 16: Train_loss = 1.228, Train_err = 20.75
+Epoch 16:   Val_loss = 0.540,   Val_err = 10.97
+
+
+Epoch 17: Train_loss = 1.225, Train_err = 20.65
+Epoch 17:   Val_loss = 0.576,   Val_err = 11.96
+
+
+Epoch 18: Train_loss = 1.209, Train_err = 20.14
+Epoch 18:   Val_loss = 0.603,   Val_err = 12.54
+
+
+Epoch 19: Train_loss = 1.209, Train_err = 19.94
+Epoch 19:   Val_loss = 0.528,   Val_err = 11.71
+
+
+Epoch 20: Train_loss = 1.199, Train_err = 19.48
+Epoch 20:   Val_loss = 0.544,   Val_err = 10.58
+
+
+Epoch 21: Train_loss = 1.196, Train_err = 19.65
+Epoch 21:   Val_loss = 0.498,   Val_err = 10.14
+
+
+Epoch 22: Train_loss = 1.188, Train_err = 18.83
+Epoch 22:   Val_loss = 0.508,   Val_err = 10.43
+
+
+Epoch 23: Train_loss = 1.181, Train_err = 18.94
+Epoch 23:   Val_loss = 0.499,   Val_err = 9.38
+
+
+Epoch 24: Train_loss = 1.176, Train_err = 18.66
+Epoch 24:   Val_loss = 0.508,   Val_err = 10.58
+
+
+Epoch 25: Train_loss = 1.168, Train_err = 18.23
+Epoch 25:   Val_loss = 0.527,   Val_err = 10.15
+
+
+Epoch 26: Train_loss = 1.168, Train_err = 18.33
+Epoch 26:   Val_loss = 0.526,   Val_err = 10.64
+
+
+Epoch 27: Train_loss = 1.164, Train_err = 18.17
+Epoch 27:   Val_loss = 0.515,   Val_err = 9.70
+
+
+Epoch 28: Train_loss = 1.159, Train_err = 18.15
+Epoch 28:   Val_loss = 0.544,   Val_err = 10.64
+
+
+Epoch 29: Train_loss = 1.155, Train_err = 17.85
+Epoch 29:   Val_loss = 0.517,   Val_err = 9.28
+
+
+Epoch 30: Train_loss = 1.152, Train_err = 17.52
+Epoch 30:   Val_loss = 0.484,   Val_err = 9.18
+
+
+Epoch 31: Train_loss = 1.148, Train_err = 17.54
+Epoch 31:   Val_loss = 0.504,   Val_err = 8.84
+
+
+Epoch 32: Train_loss = 1.144, Train_err = 17.20
+Epoch 32:   Val_loss = 0.526,   Val_err = 10.13
+
+
+Epoch 33: Train_loss = 1.140, Train_err = 16.98
+Epoch 33:   Val_loss = 0.475,   Val_err = 8.43
+
+
+Epoch 34: Train_loss = 1.138, Train_err = 17.25
+Epoch 34:   Val_loss = 0.494,   Val_err = 9.18
+
+
+Epoch 35: Train_loss = 1.138, Train_err = 16.73
+Epoch 35:   Val_loss = 0.496,   Val_err = 8.78
+
+
+Epoch 36: Train_loss = 1.132, Train_err = 16.79
+Epoch 36:   Val_loss = 0.490,   Val_err = 8.32
+
+
+Epoch 37: Train_loss = 1.133, Train_err = 16.72
+Epoch 37:   Val_loss = 0.475,   Val_err = 8.87
+
+
+Epoch 38: Train_loss = 1.131, Train_err = 16.70
+Epoch 38:   Val_loss = 0.488,   Val_err = 8.30
+
+
+Epoch 39: Train_loss = 1.122, Train_err = 16.32
+Epoch 39:   Val_loss = 0.516,   Val_err = 9.79
+
+
+Epoch 40: Train_loss = 1.125, Train_err = 16.40
+Epoch 40:   Val_loss = 0.486,   Val_err = 8.13
+
+
+Epoch 41: Train_loss = 1.120, Train_err = 16.11
+Epoch 41:   Val_loss = 0.486,   Val_err = 8.67
+
+
+Epoch 42: Train_loss = 1.120, Train_err = 16.25
+Epoch 42:   Val_loss = 0.474,   Val_err = 7.95
+
+
+Epoch 43: Train_loss = 1.121, Train_err = 16.26
+Epoch 43:   Val_loss = 0.497,   Val_err = 8.67
+
+
+Epoch 44: Train_loss = 1.122, Train_err = 16.17
+Epoch 44:   Val_loss = 0.474,   Val_err = 8.49
+
+
+Epoch 45: Train_loss = 1.120, Train_err = 15.96
+Epoch 45:   Val_loss = 0.487,   Val_err = 7.92
+
+
+Epoch 46: Train_loss = 1.114, Train_err = 15.87
+Epoch 46:   Val_loss = 0.492,   Val_err = 8.08
+
+
+Epoch 47: Train_loss = 1.115, Train_err = 16.02
+Epoch 47:   Val_loss = 0.459,   Val_err = 6.99
+
+
+Epoch 48: Train_loss = 1.111, Train_err = 15.70
+Epoch 48:   Val_loss = 0.477,   Val_err = 8.29
+
+
+Epoch 49: Train_loss = 1.112, Train_err = 15.66
+Epoch 49:   Val_loss = 0.477,   Val_err = 8.57
+
+
+Epoch 50: Train_loss = 1.111, Train_err = 15.62
+Epoch 50:   Val_loss = 0.494,   Val_err = 8.56
+
+
+Epoch 51: Train_loss = 1.108, Train_err = 15.48
+Epoch 51:   Val_loss = 0.469,   Val_err = 7.25
+
+
+Epoch 52: Train_loss = 1.105, Train_err = 15.60
+Epoch 52:   Val_loss = 0.449,   Val_err = 7.36
+
+
+Epoch 53: Train_loss = 1.105, Train_err = 15.73
+Epoch 53:   Val_loss = 0.462,   Val_err = 7.86
+
+
+Epoch 54: Train_loss = 1.102, Train_err = 15.40
+Epoch 54:   Val_loss = 0.439,   Val_err = 6.91
+
+
+Epoch 55: Train_loss = 1.098, Train_err = 15.38
+Epoch 55:   Val_loss = 0.469,   Val_err = 7.36
+
+
+Epoch 56: Train_loss = 1.098, Train_err = 15.09
+Epoch 56:   Val_loss = 0.504,   Val_err = 8.16
+
+
+Epoch 57: Train_loss = 1.099, Train_err = 15.51
+Epoch 57:   Val_loss = 0.466,   Val_err = 7.32
+
+
+Epoch 58: Train_loss = 1.094, Train_err = 15.43
+Epoch 58:   Val_loss = 0.460,   Val_err = 7.18
+
+
+Epoch 59: Train_loss = 1.098, Train_err = 15.31
+Epoch 59:   Val_loss = 0.499,   Val_err = 8.81
+
+
+Epoch 60: Train_loss = 1.090, Train_err = 15.02
+Epoch 60:   Val_loss = 0.454,   Val_err = 7.71
+
+
+Epoch 61: Train_loss = 1.093, Train_err = 15.02
+Epoch 61:   Val_loss = 0.478,   Val_err = 8.26
+
+
+Epoch 62: Train_loss = 1.084, Train_err = 14.72
+Epoch 62:   Val_loss = 0.459,   Val_err = 7.66
+
+
+Epoch 63: Train_loss = 1.090, Train_err = 14.92
+Epoch 63:   Val_loss = 0.462,   Val_err = 7.80
+
+
+Epoch 64: Train_loss = 1.083, Train_err = 14.82
+Epoch 64:   Val_loss = 0.460,   Val_err = 6.78
+
+
+Epoch 65: Train_loss = 1.078, Train_err = 14.41
+Epoch 65:   Val_loss = 0.462,   Val_err = 7.09
+
+
+Epoch 66: Train_loss = 1.083, Train_err = 14.88
+Epoch 66:   Val_loss = 0.427,   Val_err = 6.73
+
+
+Epoch 67: Train_loss = 1.083, Train_err = 14.76
+Epoch 67:   Val_loss = 0.451,   Val_err = 7.30
+
+
+Epoch 68: Train_loss = 1.078, Train_err = 14.41
+Epoch 68:   Val_loss = 0.454,   Val_err = 7.12
+
+
+Epoch 69: Train_loss = 1.074, Train_err = 14.44
+Epoch 69:   Val_loss = 0.450,   Val_err = 6.95
+
+
+Epoch 70: Train_loss = 1.076, Train_err = 14.51
+Epoch 70:   Val_loss = 0.463,   Val_err = 7.68
+
+
+Epoch 71: Train_loss = 1.070, Train_err = 14.12
+Epoch 71:   Val_loss = 0.443,   Val_err = 6.39
+
+
+Epoch 72: Train_loss = 1.066, Train_err = 14.14
+Epoch 72:   Val_loss = 0.444,   Val_err = 7.01
+
+
+Epoch 73: Train_loss = 1.067, Train_err = 14.34
+Epoch 73:   Val_loss = 0.439,   Val_err = 6.47
+
+
+Epoch 74: Train_loss = 1.068, Train_err = 14.14
+Epoch 74:   Val_loss = 0.460,   Val_err = 6.70
+
+
+Epoch 75: Train_loss = 1.062, Train_err = 13.92
+Epoch 75:   Val_loss = 0.502,   Val_err = 8.64
+
+
+Epoch 76: Train_loss = 1.063, Train_err = 13.95
+Epoch 76:   Val_loss = 0.455,   Val_err = 7.06
+
+
+Epoch 77: Train_loss = 1.066, Train_err = 14.21
+Epoch 77:   Val_loss = 0.433,   Val_err = 6.63
+
+
+Epoch 78: Train_loss = 1.057, Train_err = 14.01
+Epoch 78:   Val_loss = 0.455,   Val_err = 6.78
+
+
+Epoch 79: Train_loss = 1.058, Train_err = 13.85
+Epoch 79:   Val_loss = 0.471,   Val_err = 7.07
+
+
+Epoch 80: Train_loss = 1.059, Train_err = 13.87
+Epoch 80:   Val_loss = 0.465,   Val_err = 7.94
+
+
+Epoch 81: Train_loss = 1.053, Train_err = 13.92
+Epoch 81:   Val_loss = 0.453,   Val_err = 7.24
+
+
+Epoch 82: Train_loss = 1.054, Train_err = 13.70
+Epoch 82:   Val_loss = 0.439,   Val_err = 6.70
+
+
+Epoch 83: Train_loss = 1.054, Train_err = 13.89
+Epoch 83:   Val_loss = 0.445,   Val_err = 6.61
+
+
+Epoch 84: Train_loss = 1.054, Train_err = 13.79
+Epoch 84:   Val_loss = 0.474,   Val_err = 7.49
+
+
+Epoch 85: Train_loss = 1.051, Train_err = 13.80
+Epoch 85:   Val_loss = 0.463,   Val_err = 7.36
+
+
+Epoch 86: Train_loss = 1.042, Train_err = 13.49
+Epoch 86:   Val_loss = 0.452,   Val_err = 7.15
+
+
+Epoch 87: Train_loss = 1.048, Train_err = 13.73
+Epoch 87:   Val_loss = 0.432,   Val_err = 6.58
+
+
+Epoch 88: Train_loss = 1.045, Train_err = 13.52
+Epoch 88:   Val_loss = 0.425,   Val_err = 6.76
+
+
+Epoch 89: Train_loss = 1.042, Train_err = 13.32
+Epoch 89:   Val_loss = 0.444,   Val_err = 7.07
+
+
+Epoch 90: Train_loss = 1.038, Train_err = 13.42
+Epoch 90:   Val_loss = 0.433,   Val_err = 6.84
+
+
+Epoch 91: Train_loss = 1.042, Train_err = 13.42
+Epoch 91:   Val_loss = 0.425,   Val_err = 6.27
+
+
+Epoch 92: Train_loss = 1.033, Train_err = 13.21
+Epoch 92:   Val_loss = 0.412,   Val_err = 6.36
+
+
+Epoch 93: Train_loss = 1.035, Train_err = 13.23
+Epoch 93:   Val_loss = 0.428,   Val_err = 6.27
+
+
+Epoch 94: Train_loss = 1.034, Train_err = 13.31
+Epoch 94:   Val_loss = 0.427,   Val_err = 6.07
+
+
+Epoch 95: Train_loss = 1.028, Train_err = 13.01
+Epoch 95:   Val_loss = 0.403,   Val_err = 6.00
+
+
+Epoch 96: Train_loss = 1.029, Train_err = 13.12
+Epoch 96:   Val_loss = 0.415,   Val_err = 6.07
+
+
+Epoch 97: Train_loss = 1.023, Train_err = 13.17
+Epoch 97:   Val_loss = 0.444,   Val_err = 6.69
+
+
+Epoch 98: Train_loss = 1.025, Train_err = 12.91
+Epoch 98:   Val_loss = 0.425,   Val_err = 6.26
+
+
+Epoch 99: Train_loss = 1.022, Train_err = 13.08
+Epoch 99:   Val_loss = 0.440,   Val_err = 6.64
+
+
+Epoch 100: Train_loss = 1.019, Train_err = 13.07
+Epoch 100:   Val_loss = 0.423,   Val_err = 6.22
+
+
+Epoch 101: Train_loss = 1.016, Train_err = 12.86
+Epoch 101:   Val_loss = 0.431,   Val_err = 6.67
+
+
+Epoch 102: Train_loss = 1.014, Train_err = 12.76
+Epoch 102:   Val_loss = 0.415,   Val_err = 6.00
+
+
+Epoch 103: Train_loss = 1.015, Train_err = 12.91
+Epoch 103:   Val_loss = 0.431,   Val_err = 6.13
+
+
+Epoch 104: Train_loss = 1.010, Train_err = 12.56
+Epoch 104:   Val_loss = 0.416,   Val_err = 6.04
+
+
+Epoch 105: Train_loss = 1.010, Train_err = 12.71
+Epoch 105:   Val_loss = 0.426,   Val_err = 6.73
+
+
+Epoch 106: Train_loss = 1.006, Train_err = 12.94
+Epoch 106:   Val_loss = 0.403,   Val_err = 5.89
+
+
+Epoch 107: Train_loss = 1.005, Train_err = 12.66
+Epoch 107:   Val_loss = 0.420,   Val_err = 6.33
+
+
+Epoch 108: Train_loss = 0.999, Train_err = 12.28
+Epoch 108:   Val_loss = 0.400,   Val_err = 5.87
+
+
+Epoch 109: Train_loss = 0.998, Train_err = 12.39
+Epoch 109:   Val_loss = 0.422,   Val_err = 6.21
+
+
+Epoch 110: Train_loss = 0.999, Train_err = 12.73
+Epoch 110:   Val_loss = 0.404,   Val_err = 5.79
+
+
+Epoch 111: Train_loss = 0.991, Train_err = 12.24
+Epoch 111:   Val_loss = 0.423,   Val_err = 6.43
+
+
+Epoch 112: Train_loss = 0.991, Train_err = 12.17
+Epoch 112:   Val_loss = 0.396,   Val_err = 6.00
+
+
+Epoch 113: Train_loss = 0.994, Train_err = 12.57
+Epoch 113:   Val_loss = 0.389,   Val_err = 5.58
+
+
+Epoch 114: Train_loss = 0.981, Train_err = 11.86
+Epoch 114:   Val_loss = 0.406,   Val_err = 5.83
+
+
+Epoch 115: Train_loss = 0.982, Train_err = 12.13
+Epoch 115:   Val_loss = 0.408,   Val_err = 6.11
+
+
+Epoch 116: Train_loss = 0.980, Train_err = 12.12
+Epoch 116:   Val_loss = 0.385,   Val_err = 5.67
+
+
+Epoch 117: Train_loss = 0.981, Train_err = 12.33
+Epoch 117:   Val_loss = 0.387,   Val_err = 5.69
+
+
+Epoch 118: Train_loss = 0.976, Train_err = 11.90
+Epoch 118:   Val_loss = 0.386,   Val_err = 5.44
+
+
+Epoch 119: Train_loss = 0.976, Train_err = 11.94
+Epoch 119:   Val_loss = 0.407,   Val_err = 5.73
+
+
+Epoch 120: Train_loss = 0.974, Train_err = 11.99
+Epoch 120:   Val_loss = 0.401,   Val_err = 5.71
+
+
+Epoch 121: Train_loss = 0.970, Train_err = 11.69
+Epoch 121:   Val_loss = 0.388,   Val_err = 5.66
+
+
+Epoch 122: Train_loss = 0.963, Train_err = 11.51
+Epoch 122:   Val_loss = 0.400,   Val_err = 5.79
+
+
+Epoch 123: Train_loss = 0.962, Train_err = 11.66
+Epoch 123:   Val_loss = 0.377,   Val_err = 5.22
+
+
+Epoch 124: Train_loss = 0.963, Train_err = 11.72
+Epoch 124:   Val_loss = 0.388,   Val_err = 5.87
+
+
+Epoch 125: Train_loss = 0.955, Train_err = 11.28
+Epoch 125:   Val_loss = 0.393,   Val_err = 5.73
+
+
+Epoch 126: Train_loss = 0.958, Train_err = 11.62
+Epoch 126:   Val_loss = 0.378,   Val_err = 5.49
+
+
+Epoch 127: Train_loss = 0.949, Train_err = 11.22
+Epoch 127:   Val_loss = 0.387,   Val_err = 5.70
+
+
+Epoch 128: Train_loss = 0.950, Train_err = 11.26
+Epoch 128:   Val_loss = 0.383,   Val_err = 5.75
+
+
+Epoch 129: Train_loss = 0.946, Train_err = 11.20
+Epoch 129:   Val_loss = 0.376,   Val_err = 5.60
+
+
+Epoch 130: Train_loss = 0.942, Train_err = 11.14
+Epoch 130:   Val_loss = 0.371,   Val_err = 5.75
+
+
+Epoch 131: Train_loss = 0.947, Train_err = 11.13
+Epoch 131:   Val_loss = 0.385,   Val_err = 6.01
+
+
+Epoch 132: Train_loss = 0.938, Train_err = 11.08
+Epoch 132:   Val_loss = 0.361,   Val_err = 5.18
+
+
+Epoch 133: Train_loss = 0.938, Train_err = 11.42
+Epoch 133:   Val_loss = 0.368,   Val_err = 5.33
+
+
+Epoch 134: Train_loss = 0.933, Train_err = 11.03
+Epoch 134:   Val_loss = 0.367,   Val_err = 5.09
+
+
+Epoch 135: Train_loss = 0.935, Train_err = 11.23
+Epoch 135:   Val_loss = 0.357,   Val_err = 5.09
+
+
+Epoch 136: Train_loss = 0.931, Train_err = 11.00
+Epoch 136:   Val_loss = 0.372,   Val_err = 5.17
+
+
+Epoch 137: Train_loss = 0.926, Train_err = 10.84
+Epoch 137:   Val_loss = 0.362,   Val_err = 5.33
+
+
+Epoch 138: Train_loss = 0.926, Train_err = 10.81
+Epoch 138:   Val_loss = 0.345,   Val_err = 5.08
+
+
+Epoch 139: Train_loss = 0.921, Train_err = 10.73
+Epoch 139:   Val_loss = 0.351,   Val_err = 5.04
+
+
+Epoch 140: Train_loss = 0.919, Train_err = 10.72
+Epoch 140:   Val_loss = 0.361,   Val_err = 5.10
+
+
+Epoch 141: Train_loss = 0.915, Train_err = 10.46
+Epoch 141:   Val_loss = 0.357,   Val_err = 5.34
+
+
+Epoch 142: Train_loss = 0.916, Train_err = 10.45
+Epoch 142:   Val_loss = 0.353,   Val_err = 5.13
+
+
+Epoch 143: Train_loss = 0.912, Train_err = 10.86
+Epoch 143:   Val_loss = 0.358,   Val_err = 5.00
+
+
+Epoch 144: Train_loss = 0.908, Train_err = 10.60
+Epoch 144:   Val_loss = 0.349,   Val_err = 5.01
+
+
+Epoch 145: Train_loss = 0.905, Train_err = 10.54
+Epoch 145:   Val_loss = 0.347,   Val_err = 5.07
+
+
+Epoch 146: Train_loss = 0.902, Train_err = 10.47
+Epoch 146:   Val_loss = 0.346,   Val_err = 4.76
+
+
+Epoch 147: Train_loss = 0.903, Train_err = 10.44
+Epoch 147:   Val_loss = 0.338,   Val_err = 4.82
+
+
+Epoch 148: Train_loss = 0.895, Train_err = 10.22
+Epoch 148:   Val_loss = 0.337,   Val_err = 4.75
+
+
+Epoch 149: Train_loss = 0.896, Train_err = 10.38
+Epoch 149:   Val_loss = 0.339,   Val_err = 4.81
+
+
+Epoch 150: Train_loss = 0.895, Train_err = 10.24
+Epoch 150:   Val_loss = 0.344,   Val_err = 4.71
+
+
+Epoch 151: Train_loss = 0.892, Train_err = 10.16
+Epoch 151:   Val_loss = 0.340,   Val_err = 4.85
+
+
+Epoch 152: Train_loss = 0.890, Train_err = 10.28
+Epoch 152:   Val_loss = 0.331,   Val_err = 4.69
+
+
+Epoch 153: Train_loss = 0.891, Train_err = 10.28
+Epoch 153:   Val_loss = 0.335,   Val_err = 4.80
+
+
+Epoch 154: Train_loss = 0.884, Train_err = 10.18
+Epoch 154:   Val_loss = 0.336,   Val_err = 4.74
+
+
+Epoch 155: Train_loss = 0.883, Train_err = 10.06
+Epoch 155:   Val_loss = 0.329,   Val_err = 4.75
+
+
+Epoch 156: Train_loss = 0.877, Train_err = 10.00
+Epoch 156:   Val_loss = 0.329,   Val_err = 4.83
+
+
+Epoch 157: Train_loss = 0.877, Train_err = 10.05
+Epoch 157:   Val_loss = 0.331,   Val_err = 4.70
+
+
+Epoch 158: Train_loss = 0.873, Train_err = 9.86
+Epoch 158:   Val_loss = 0.329,   Val_err = 4.52
+
+
+Epoch 159: Train_loss = 0.873, Train_err = 9.90
+Epoch 159:   Val_loss = 0.337,   Val_err = 4.76
+
+
+Epoch 160: Train_loss = 0.869, Train_err = 10.09
+Epoch 160:   Val_loss = 0.322,   Val_err = 4.56
+
+
+Epoch 161: Train_loss = 0.867, Train_err = 9.87
+Epoch 161:   Val_loss = 0.317,   Val_err = 4.55
+
+
+Epoch 162: Train_loss = 0.870, Train_err = 10.00
+Epoch 162:   Val_loss = 0.319,   Val_err = 4.46
+
+
+Epoch 163: Train_loss = 0.864, Train_err = 9.64
+Epoch 163:   Val_loss = 0.323,   Val_err = 4.63
+
+
+Epoch 164: Train_loss = 0.858, Train_err = 9.68
+Epoch 164:   Val_loss = 0.324,   Val_err = 4.48
+
+
+Epoch 165: Train_loss = 0.858, Train_err = 9.66
+Epoch 165:   Val_loss = 0.318,   Val_err = 4.36
+
+
+Epoch 166: Train_loss = 0.859, Train_err = 9.68
+Epoch 166:   Val_loss = 0.317,   Val_err = 4.50
+
+
+Epoch 167: Train_loss = 0.853, Train_err = 9.39
+Epoch 167:   Val_loss = 0.313,   Val_err = 4.39
+
+
+Epoch 168: Train_loss = 0.850, Train_err = 9.51
+Epoch 168:   Val_loss = 0.314,   Val_err = 4.46
+
+
+Epoch 169: Train_loss = 0.851, Train_err = 9.60
+Epoch 169:   Val_loss = 0.308,   Val_err = 4.22
+
+
+Epoch 170: Train_loss = 0.851, Train_err = 9.65
+Epoch 170:   Val_loss = 0.316,   Val_err = 4.51
+
+
+Epoch 171: Train_loss = 0.847, Train_err = 9.42
+Epoch 171:   Val_loss = 0.314,   Val_err = 4.33
+
+
+Epoch 172: Train_loss = 0.846, Train_err = 9.32
+Epoch 172:   Val_loss = 0.307,   Val_err = 4.24
+
+
+Epoch 173: Train_loss = 0.848, Train_err = 9.50
+Epoch 173:   Val_loss = 0.310,   Val_err = 4.21
+
+
+Epoch 174: Train_loss = 0.845, Train_err = 9.51
+Epoch 174:   Val_loss = 0.312,   Val_err = 4.43
+
+
+Epoch 175: Train_loss = 0.847, Train_err = 9.66
+Epoch 175:   Val_loss = 0.308,   Val_err = 4.19
+
+
+Epoch 176: Train_loss = 0.844, Train_err = 9.36
+Epoch 176:   Val_loss = 0.306,   Val_err = 4.26
+
+
+Epoch 177: Train_loss = 0.843, Train_err = 9.30
+Epoch 177:   Val_loss = 0.306,   Val_err = 4.07
+
+
+Epoch 178: Train_loss = 0.842, Train_err = 9.21
+Epoch 178:   Val_loss = 0.304,   Val_err = 4.14
+
+
+Epoch 179: Train_loss = 0.840, Train_err = 9.19
+Epoch 179:   Val_loss = 0.308,   Val_err = 4.18
+
+
+Epoch 180: Train_loss = 0.837, Train_err = 9.08
+Epoch 180:   Val_loss = 0.301,   Val_err = 4.02
+
+
+Epoch 181: Train_loss = 0.833, Train_err = 9.04
+Epoch 181:   Val_loss = 0.302,   Val_err = 4.15
+
+
+Epoch 182: Train_loss = 0.831, Train_err = 9.16
+Epoch 182:   Val_loss = 0.304,   Val_err = 3.98
+
+
+Epoch 183: Train_loss = 0.831, Train_err = 9.18
+Epoch 183:   Val_loss = 0.300,   Val_err = 4.13
+
+
+Epoch 184: Train_loss = 0.835, Train_err = 9.23
+Epoch 184:   Val_loss = 0.303,   Val_err = 4.08
+
+
+Epoch 185: Train_loss = 0.830, Train_err = 9.03
+Epoch 185:   Val_loss = 0.300,   Val_err = 4.09
+
+
+Epoch 186: Train_loss = 0.832, Train_err = 9.27
+Epoch 186:   Val_loss = 0.301,   Val_err = 4.16
+
+
+Epoch 187: Train_loss = 0.827, Train_err = 9.12
+Epoch 187:   Val_loss = 0.298,   Val_err = 4.05
+
+
+Epoch 188: Train_loss = 0.829, Train_err = 9.26
+Epoch 188:   Val_loss = 0.299,   Val_err = 4.06
+
+
+Epoch 189: Train_loss = 0.829, Train_err = 8.94
+Epoch 189:   Val_loss = 0.300,   Val_err = 4.15
+
+
+Epoch 190: Train_loss = 0.828, Train_err = 9.08
+Epoch 190:   Val_loss = 0.299,   Val_err = 4.09
+
+
+Epoch 191: Train_loss = 0.830, Train_err = 8.91
+Epoch 191:   Val_loss = 0.301,   Val_err = 4.13
+
+
+Epoch 192: Train_loss = 0.825, Train_err = 8.78
+Epoch 192:   Val_loss = 0.300,   Val_err = 3.97
+
+
+Epoch 193: Train_loss = 0.830, Train_err = 9.09
+Epoch 193:   Val_loss = 0.300,   Val_err = 4.00
+
+
+Epoch 194: Train_loss = 0.827, Train_err = 8.97
+Epoch 194:   Val_loss = 0.298,   Val_err = 4.06
+
+
+Epoch 195: Train_loss = 0.829, Train_err = 9.21
+Epoch 195:   Val_loss = 0.299,   Val_err = 4.14
+
+
+Epoch 196: Train_loss = 0.823, Train_err = 8.97
+Epoch 196:   Val_loss = 0.298,   Val_err = 4.05
+
+
+Epoch 197: Train_loss = 0.827, Train_err = 9.08
+Epoch 197:   Val_loss = 0.297,   Val_err = 4.12
+
+
+Epoch 198: Train_loss = 0.826, Train_err = 9.19
+Epoch 198:   Val_loss = 0.298,   Val_err = 4.08
+
+
+Epoch 199: Train_loss = 0.825, Train_err = 8.78
+Epoch 199:   Val_loss = 0.299,   Val_err = 4.05
+
+
+Epoch 200: Train_loss = 0.828, Train_err = 8.99
+Epoch 200:   Val_loss = 0.298,   Val_err = 4.10
+
+Test_loss = 0.298,  Test_err = 4.10
