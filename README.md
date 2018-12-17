@@ -18,25 +18,23 @@ For simplicity, run the command line bewlow in the shell, Windows DOS supported 
 
 `$ python train.py`
 ## Result
-Here are some model results on Cifar-10. All these models are trained on the total training set and evaluated on the test set. We don't apply cross validation here. The training setting and detail result can be found in the folder **model_example_result**.   
+Here are some model results on Cifar-10. All these models are trained on the total training set and evaluated on the test set. The total epochs are 200, and the learning rate is cosine learning decay, that is:  
+
+`lr_batch = 0.5 * init_lr * (1 + np.cos(np.pi * (epoch_t * train_batches + i) / (epochs * train_batches)))`  
+
+We don't apply cross validation here. The training setting and detail result can be found in the folder **model_example_result**.   
 
 | model | Augment method | best acc. | median of last 10 epochs | time (single Tesla K40C) |
 | :-----: |  :-----: | :-----: | :-----:| :-----: |
-| PreResNet18 | mixup | 3.97 | 4.07 | 5h 45 m |
+| PreResNet18 | mixup | 3.97 | 4.07 | 5h 45m |
 | PreResNet18 | autoAug | 3.73 | 3.89 | 5h 45m
 | PreResNet18 | autoAug + mixup | 3.37 | 3.33 | 5h 45m|
 | ... | ... | ... | ... | ... |
 
-The result of the model _preact ResNet18_ with autoAugmentation method. The test error rate is **4.37%** for the last epoch.  
-`lr = 0.1 if epoch <= 100 else lr = 0.01 if epoch <= 150 else lr = 0.001, epochs = 200, weight_decay = 1e-4, gradient_clipping = 5.0, momentum = 0.9, use_nestrov = True`
+The figure below records the loss and error rate during training of the model **PreResNet18** with **AutoAugmentation+mixup**.  
 
-![image](https://github.com/ZoengMingWong/cifar-model-tensorflow/blob/master/preresnet18_autoAug.png)  
+![image](https://github.com/ZoengMingWong/cifar-model-tensorflow/blob/master/model_example_result/resnet18_autoAug_mixup/train_result.png)  
 
-The result of the model _WideResNet-28-10_ with autoAugmentation. The test error rate is **2.79%** for the last epoch.  
-
-`lr is cosine learning rate like autoAugmentation, epochs = 200, weight_decay = 5e-4, gradient_clipping = 5.0, momentum = 0.9, use_nestrov = True`  
-
-![image](https://github.com/ZoengMingWong/cifar-model-tensorflow/blob/master/wrn28_autoAug.png)
 ## Reference
 ### ResNet
 > Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. [_Deep Residual Learning for Image Recognition_](https://arxiv.org/abs/1512.03385). arXiv:1512.03385v1 [cs.CV] 10 Dec 2015.  
