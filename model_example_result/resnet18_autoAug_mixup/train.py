@@ -68,7 +68,7 @@ if __name__ == '__main__':
     # Set mixup_alpha = 0 and autoAugment = False to use the baseline augment methods.
     # Generally, autoAugmentation is better than mixup, and even better with both two.
     mixup_alpha = 1.0
-    autoAugment = False
+    autoAugment = True
     
     """
     ---------------------------------------------------------------------------

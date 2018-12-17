@@ -1,1 +1,1 @@
-This foler shows some models and their training and testing results. Note that all these models are training with the total training set, meaning that we don't have the validation set and the models are directly evaluated on the test set.
+This foler shows some models and their training and testing results. Note that all these models are training with the total training set, meaning that we don't have the validation set and the models are directly evaluated on the test set. We use the consine learning rate decay without restart for the batches.
