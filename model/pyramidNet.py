@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Nov 20 15:44:45 2018
-
-@author: hzm
-"""
 
 import tensorflow as tf
 from . import layers

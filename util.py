@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Nov  5 09:53:59 2018
-
-@author: hzm
-"""
 
 from __future__ import print_function
 import time

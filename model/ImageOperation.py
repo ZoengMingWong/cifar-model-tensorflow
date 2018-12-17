@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Oct 31 17:12:49 2018
-
-@author: hzm
-"""
 
 from __future__ import division
 from PIL import Image, ImageOps, ImageEnhance

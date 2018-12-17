@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Nov  5 10:02:04 2018
-
-@author: hzm
-"""
 
 from __future__ import division, print_function
 import tensorflow as tf
@@ -13,7 +8,16 @@ from multiprocessing import Pool
 import util
 
 os.environ['CUDA_DEVICES_ORDER'] = 'PCI_BUS_ID'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'    # the GPU(s) can be used
+
+# If you don't config the GPUs, TensorFlow would occupy all free memory of the visible GPUs.
+# Set the `per_process_gpu_memory_fraction` to restrict the usable memory.
+# Set the `allow_growth` the let it self-adaptively fetch the memory, however some memory
+# would be wasted as the program would apply for more memory than it actually need.
+# Since the first GPU is used to store some shared variables, it need more memory than the rest.
+config = tf.ConfigProto()
+#config.gpu_options.per_process_gpu_memory_fraction = 0.3
+config.gpu_options.allow_growth = True
 
 if __name__ == '__main__':
     
@@ -23,17 +27,26 @@ if __name__ == '__main__':
     classes = 10                        # total classes of the label
     epochs = 200                        # epochs to train
     init_lr = 0.1                       # initial learning rate
-    # learning_rate should be callable function with the EPOCH as its input parameter.
-    learning_rate = lambda e: init_lr if e < 100 else (init_lr / 10) if e < 150 else (init_lr / 100)
+    # You can define the learning rate foe every epoch or even every batch, 
+    # by feeding the `lr` in the feed_dict (see the Training Stage codes).
+    # By default we use the cosine decay rate without restart for every batch, 
+    # you can set the offset of the cosine function to restart the training with the proper lr.
+    # Below is the learining rate used in origingal papers for ResNet.
+    # learning_rate = lambda e: init_lr if e < 100 else (init_lr / 10) if e < 150 else (init_lr / 100)
     
     use_val = False                     # whether apply the validation with part of training set
     val_ratio = 0.1                     # take a part of the traing set to apply validation
     train_batch_size = 128              # batch size of the training set
     val_batch_size = 100                # batch size of the validating set
     
-    # data augmentation methods
+    # Below are some augment methods, read the corresponding papers for details. 
+    # Set `mixip_alpha` zero to disable the mixup augmentation, 
+    # and a non-zero float number represents the alpha (here equal to beta) of the BETA distribution.
+    # Set `autoAugment` TRUE to enable the auto-Augmentation.
+    # Set mixup_alpha = 0 and autoAugment = False to use the baseline augment methods.
+    # Generally, autoAugmentation is better than mixup, and even better with both two.
     mixup_alpha = 1.0
-    autoAugment = False
+    autoAugment = True
     
     """
     ---------------------------------------------------------------------------
@@ -93,9 +106,6 @@ if __name__ == '__main__':
     Restore the network and start training.
     ---------------------------------------------------------------------------
     """
-    config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
-    
     with tf.Session(config=config) as sess:
         
         saver = tf.train.import_meta_graph(ckpt_meta)
@@ -171,8 +181,11 @@ if __name__ == '__main__':
             pool.close()
             
             for i in range(train_batches):
+                # cosine learning rate decay without restart
+                # If the training epoch doesn't start from 0, you can set the offset of the cosine function.
+                lr_batch = 0.5 * init_lr * (1 + np.cos(np.pi * (e * train_batches + i) / (epochs * train_batches)))
                 batch_time = time.time()
-                _, loss_i, err_i = sess.run([train_op, tower_loss, tower_error], feed_dict={train_flag: True, lr: learning_rate(e), batch_size: train_batch_size})
+                _, loss_i, err_i = sess.run([train_op, tower_loss, tower_error], feed_dict={train_flag: True, lr: lr_batch, batch_size: train_batch_size})
                 train_losses[e] += loss_i
                 train_err[e] += err_i
                 

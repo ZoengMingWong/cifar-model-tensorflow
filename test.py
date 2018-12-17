@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Nov  5 15:33:40 2018
 
-@author: hzm
-"""
 import numpy as np
 import os, re
 import util

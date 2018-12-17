@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Oct 29 10:09:08 2018
 
-@author: hzm
-"""
 from __future__ import division, print_function
 import os, sys, time, re
 import tensorflow as tf
@@ -14,11 +10,19 @@ from model import layers, resnet, resnext, wideResnet, pyramidNet, shakeDrop
 import util
 
 os.environ['CUDA_DEVICES_ORDER'] = 'PCI_BUS_ID'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'    # the GPU(s) can be used
+
+# If you don't config the GPUs, TensorFlow would occupy all free memory of the visible GPUs.
+# Set the `per_process_gpu_memory_fraction` to restrict the usable memory.
+# Set the `allow_growth` the let it self-adaptively fetch the memory, however some memory
+# would be wasted as the program would apply for more memory than it actually need.
+# Empirically, 3GB for ResNet-18 and 7GB for WRN-28-10 is enough.
+config = tf.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.25
+#config.gpu_options.allow_growth = True
 
 # Below are some typical models in papers, you can define some other models yourself.
-# The model must have the interface `model_name(input, training, [option])`, 
-# and return the features before the fully connected layer.
+# The model must return the features before the fully connected layer (convolution net).
 model_dict = {'ResNet18': resnet.ResNet18, 
               'PreResNet18': resnet.PreResNet18, 
               'PreResNet50': resnet.PreResNet50, 
@@ -38,12 +42,14 @@ if __name__ == '__main__':
     classes = 10                        # total classes of the label
     epochs = 200                        # epochs to train
     init_lr = 0.1                       # initial learning rate
-    learning_rate = lambda e: init_lr if e < 100 else (init_lr / 10) if e < 150 else (init_lr / 100)
-    # `learning_rate` should be a callable function with the EPOCH as its input parameter.
-    # You can also define the `learning_rate` for every batch below yourself.
+    # You can define the learning rate foe every epoch or even every batch, 
+    # by feeding the `lr` in the feed_dict (see the Training Stage codes).
+    # By default we use the cosine decay rate without restart for every batch.
+    # Below is the learining rate used in origingal papers for ResNet.
+    # learning_rate = lambda e: init_lr if e < 100 else (init_lr / 10) if e < 150 else (init_lr / 100)
     
     optimizer = tf.train.MomentumOptimizer  # the optimizer to use
-    weight_decay = 1e-4                 # weight decay with L2 regularization
+    weight_decay = 1e-4                 # weight decay with L2 regularization, you can use 5e-4 for WRN.
     grad_clip = 5.0                     # gradient clipping to avoid exploration
     zero_pad = False                    # whether zero-padding or 1x1 conv for the shortcut channels mapping
     momentum = 0.9                      # the momentum of the Momentum optimizer
@@ -55,11 +61,13 @@ if __name__ == '__main__':
     train_batch_size = 128              # batch size of the training set
     val_batch_size = 100                # batch size of the validating set
     
-    # Below are some augment methods. Set `MIXUP_ALPHA` to zero to disable the mixup augmentation, 
+    # Below are some augment methods, read the corresponding papers for details. 
+    # Set `mixip_alpha` zero to disable the mixup augmentation, 
     # and a non-zero float number represents the alpha (here equal to beta) of the BETA distribution.
-    # Set `AUTOAUGMENT` to TRUE to enable the auto-Augmentation introduced by Google Brain.
+    # Set `autoAugment` TRUE to enable the auto-Augmentation.
     # Set mixup_alpha = 0 and autoAugment = False to use the baseline augment methods.
-    mixup_alpha = 0.0
+    # Generally, autoAugmentation is better than mixup, and even better with both two.
+    mixup_alpha = 1.0
     autoAugment = True
     
     """
@@ -67,6 +75,7 @@ if __name__ == '__main__':
     Gather the dataset.
     ---------------------------------------------------------------------------
     """
+    # xs is a numpy array of STRINGs, and ys is a numpy array of INTs.
     fs = os.listdir(os.path.join(data_path, 'train'))
     xs_train = np.array([os.path.join(data_path, 'train', f) for f in fs])
     ys_train = np.array([int(re.split('[_.]', f)[1]) for f in fs])
@@ -117,7 +126,7 @@ if __name__ == '__main__':
     
     """
     ---------------------------------------------------------------------------
-    Setup the network.
+    Setup the compute graph.
     ---------------------------------------------------------------------------
     """
     tf.reset_default_graph()
@@ -174,6 +183,7 @@ if __name__ == '__main__':
     Gather the variables to make a checkpoint.
     ---------------------------------------------------------------------------
     """
+    # Adding the variables or operations to collections make it easy to reuse with a checkpoint.
     tf.add_to_collection('batch_label', label)
     tf.add_to_collection('pred', pred)
     tf.add_to_collection('loss', loss)
@@ -183,12 +193,12 @@ if __name__ == '__main__':
     
     # The trainable variables like weights and biases.
     var_list = tf.trainable_variables()
-    params = 0
+    params = 0      # the total training parameters representing the model complexity.
     for var in var_list:
         params += np.prod(var.get_shape().as_list())
     
     # Variables of the optimizer, note that the size is somewhat large to save.
-    # We needn't save them for the inference stage, 
+    # We have no need to save them in the inference stage, 
     # you can redefine an optimizer if you want to retrain the model with a checkpoint.
     if save_optim == True:
         var_list += optim.variables()
@@ -208,9 +218,6 @@ if __name__ == '__main__':
     Config the devices and start training.
     ---------------------------------------------------------------------------
     """
-    config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
-    # config.gpu_options.per_process_gpu_memory_fraction = 0.25
     
     with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
@@ -268,8 +275,10 @@ if __name__ == '__main__':
             ###################################################################
             
             for i in range(train_batches):
+                # cosine learning rate decay without restart
+                lr_batch = 0.5 * init_lr * (1 + np.cos(np.pi * (e * train_batches + i) / (epochs * train_batches)))
                 batch_time = time.time()
-                _, loss_i, err_i = sess.run([train_op, loss, error], feed_dict={train_flag: True, lr: learning_rate(e), batch_size: train_batch_size})
+                _, loss_i, err_i = sess.run([train_op, loss, error], feed_dict={train_flag: True, lr: lr_batch, batch_size: train_batch_size})
                 train_losses[e] += loss_i
                 train_err[e] += err_i
                 

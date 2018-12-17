@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Nov 21 14:32:20 2018
 
-@author: hzm
-"""
 import numpy as np
 import os, cPickle
 import matplotlib.pyplot as plt

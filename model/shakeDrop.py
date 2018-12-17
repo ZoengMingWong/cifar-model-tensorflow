@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Nov 22 16:53:22 2018
 
-@author: hzm
-"""
 from __future__ import division
 import tensorflow as tf
 from . import layers

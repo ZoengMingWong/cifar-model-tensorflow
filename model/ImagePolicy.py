@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Nov  1 10:25:26 2018
-
-@author: hzm
-"""
 
 from __future__ import division
 import ImageOperation as ImOps

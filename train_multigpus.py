@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Oct 29 10:09:08 2018
 
-@author: hzm
-"""
 from __future__ import division, print_function
 import tensorflow as tf
 from tensorflow import data
@@ -14,9 +10,19 @@ from model import layers, resnet, resnext, wideResnet, pyramidNet, shakeDrop
 import util
 
 os.environ['CUDA_DEVICES_ORDER'] = 'PCI_BUS_ID'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'    # the GPU(s) can be used
+
+# If you don't config the GPUs, TensorFlow would occupy all free memory of the visible GPUs.
+# Set the `per_process_gpu_memory_fraction` to restrict the usable memory.
+# Set the `allow_growth` the let it self-adaptively fetch the memory, however some memory
+# would be wasted as the program would apply for more memory than it actually need.
+# Since the first GPU is used to store some shared variables, it need more memory than the rest.
+config = tf.ConfigProto()
+#config.gpu_options.per_process_gpu_memory_fraction = 0.3
+config.gpu_options.allow_growth = True
 
 # Below are some typical models in papers, you can define some other models yourself.
+# The model must return the features before the fully connected layer (convolution net).
 model_dict = {'ResNet18': resnet.ResNet18, 
               'PreResNet18': resnet.PreResNet18, 
               'PreResNet50': resnet.PreResNet50, 
@@ -34,17 +40,19 @@ if __name__ == '__main__':
     
     data_path = '/home/hzm/cifar_data'  # data path
     net = model_dict['PreResNet18']     # model to use
+    gpus = 2                            # GPUs to use, >= 1, and must evenly divide the batch_size.
     classes = 10                        # total classes of the label
     epochs = 200                        # epochs to train
     init_lr = 0.1                       # initial learning rate
-    # learning_rate should be a callable function with the EPOCH as its input parameter.
-    learning_rate = lambda e: init_lr if e < 100 else (init_lr / 10) if e < 150 else (init_lr / 100)
-    gpus = 2                            # GPUs to use, >= 1, and must evenly divide the batch_size.
+    # You can define the learning rate foe every epoch or even every batch, 
+    # by feeding the `lr` in the feed_dict (see the Training Stage codes).
+    # By default we use the cosine decay rate without restart for every batch.
+    # Below is the learining rate used in origingal papers for ResNet.
+    # learning_rate = lambda e: init_lr if e < 100 else (init_lr / 10) if e < 150 else (init_lr / 100)
     
     optimizer = tf.train.MomentumOptimizer  # the optimizer to use, as you please
     weight_decay = 1e-4                 # weight decay with L2 regularization
     grad_clip = 5.0                     # gradient clipping to avoid exploration
-    
     zero_pad = False                    # whether zero-padding or 1x1 conv for the shortcut mapping
     momentum = 0.9                      # the momentuum Momentum optimizer
     use_nesterov = True                 # whether use the Nesterov Momentum
@@ -54,12 +62,14 @@ if __name__ == '__main__':
     train_batch_size = 128              # batch size of the training set
     val_batch_size = 100                # batch size of the validating set
     
-    # Below are some augment methods. Set MIXUP_ALPHA to zero to disable the mixup augmentation, 
+    # Below are some augment methods, read the corresponding papers for details. 
+    # Set `mixip_alpha` zero to disable the mixup augmentation, 
     # and a non-zero float number represents the alpha (here equal to beta) of the BETA distribution.
-    # Set AUTOAUGMENT to TRUE to enable the auto-Augmentation introduced by Google.
+    # Set `autoAugment` TRUE to enable the auto-Augmentation.
     # Set mixup_alpha = 0 and autoAugment = False to use the baseline augment methods.
+    # Generally, autoAugmentation is better than mixup, and even better with both two.
     mixup_alpha = 1.0
-    autoAugment = False
+    autoAugment = True
     
     """
     ---------------------------------------------------------------------------
@@ -191,6 +201,7 @@ if __name__ == '__main__':
     Gather the variables to make a checkpoint.
     ---------------------------------------------------------------------------
     """
+    # Adding the variables or operations to collections make it easy to reuse with a checkpoint.
     tf.add_to_collection('batch_label', label)
     tf.add_to_collection('pred', pred)
     tf.add_to_collection('loss', tower_loss)
@@ -213,9 +224,6 @@ if __name__ == '__main__':
     Config the devices and start training.
     ---------------------------------------------------------------------------
     """
-    config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
-    
     with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
         #w = tf.summary.FileWriter('graph', sess.graph)
@@ -273,8 +281,10 @@ if __name__ == '__main__':
             ###################################################################
             
             for i in range(train_batches):
+                # cosine learning rate decay without restart
+                lr_batch = 0.5 * init_lr * (1 + np.cos(np.pi * (e * train_batches + i) / (epochs * train_batches)))
                 batch_time = time.time()
-                _, loss_i, err_i = sess.run([train_op, tower_loss, tower_error], feed_dict={train_flag: True, lr: learning_rate(e), batch_size: train_batch_size})
+                _, loss_i, err_i = sess.run([train_op, tower_loss, tower_error], feed_dict={train_flag: True, lr: lr_batch, batch_size: train_batch_size})
                 train_losses[e] += loss_i
                 train_err[e] += err_i
                 

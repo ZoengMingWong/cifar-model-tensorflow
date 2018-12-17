@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Nov  5 14:39:47 2018
-
-@author: hzm
-"""
 
 import tensorflow as tf
 from . import layers
@@ -53,7 +48,11 @@ def WideResNet(img, blocks, strides, k, chans, is_training, dropout=0.0, zero_pa
     return out
     
 def googleWRN(img, blocks, strides, k, chans, is_training, dropout=0.0, zero_pad=False):
-    
+    """
+    This WRN is something like the DenseNet that in addition to the skip connection in the block, 
+    there is also a skip connection between the blocks groups, but not the concatenation.
+    It is implemented by google in AutoAugment: Learning Augmentation Policies from Data.
+    """
     with tf.variable_scope('Begin'):
         out = layers.conv2d(img, chans, kernel_size=[3, 3], strides=[1, 1], name='conv')
         begin = out
