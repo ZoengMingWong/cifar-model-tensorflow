@@ -14,7 +14,7 @@ You can do it with the command below in the linux shell. Note that the project d
 ### Training
 As mentioned above, the command line parameters are not provided, but you can easily config the parameters in the begining of the codes. There are two versions of training files, the single/no GPU one and the multiGPUs one. The single/no GPU one, named `train.py`, can be executed without any GPUs but just CPUs (although it's very slow), or with only one GPU. On the contrary, the multiGPUs one, named `train_multigpus.py`, must executed with at least one GPU, with data parallelism, which means that all GPUs have the same compute graph. Both two codes would saved the best result as a checkpoint while training, and you can test or retrain the model with a checkpoint by running the `test.py` or `train_with_ckpt.py` and its multiGPUs version `train_with_ckpt_multigpus.py`, respectively.  
 
-For simplicity, run the command line bewlow in the shell, Windows DOS supported as well, and *tensorflow*, *numpy*, *PIL*, *matplotlib*, *multiprocessing*, *cPickle*, *re* etc. are needed. By default the *preact ResNet18* model with *Mixup* augmentation will be trained.
+For simplicity, run the command line bewlow in the shell, Windows DOS supported as well, and *tensorflow*, *numpy*, *PIL*, *matplotlib*, *multiprocessing*, *cPickle*, *re* etc. are needed. By default the model **Preact ResNet18** with **AutoAugmentation+Mixup** will be trained.
 
 `$ python train.py`
 ## Result
