@@ -20,12 +20,12 @@ For simplicity, run the command line bewlow in the shell, Windows DOS supported 
 ## Result
 Here are some model results on Cifar-10. All these models are trained on the total training set and evaluated on the test set. We don't apply cross validation here. The training setting and detail result can be found in the folder **model_example_result**.   
 
-| model | Augment method | best acc. | median of last 10 epochs |
-| :-----: |  :-----: | :-----: | :-----:|
-| PreResNet18 | mixup | 3.97 | 4.07 |
-| PreResNet18 | autoAug | 3.73 | 3.89 |
-| PreResNet18 | autoAug + mixup | 3.37 | 3.33 |
-| ... | ... | ... | ... |
+| model | Augment method | best acc. | median of last 10 epochs | time (single Tesla K40C) |
+| :-----: |  :-----: | :-----: | :-----:| :-----: |
+| PreResNet18 | mixup | 3.97 | 4.07 | 5h 45 m |
+| PreResNet18 | autoAug | 3.73 | 3.89 | 5h 45m
+| PreResNet18 | autoAug + mixup | 3.37 | 3.33 | 5h 45m|
+| ... | ... | ... | ... | ... |
 
 The result of the model _preact ResNet18_ with autoAugmentation method. The test error rate is **4.37%** for the last epoch.  
 `lr = 0.1 if epoch <= 100 else lr = 0.01 if epoch <= 150 else lr = 0.001, epochs = 200, weight_decay = 1e-4, gradient_clipping = 5.0, momentum = 0.9, use_nestrov = True`
