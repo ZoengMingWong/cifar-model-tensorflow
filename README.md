@@ -28,7 +28,7 @@ We don't apply cross validation here. The training setting and detail result can
 | :-----: |  :-----: | :-----: | :-----:| :-----: |
 | PreResNet18 | mixup | 3.97 | 4.07 | 5h 45m |
 | PreResNet18 | autoAug | 3.73 | 3.89 | 5h 45m
-| PreResNet18 | autoAug + mixup | 3.37 | 3.33 | 5h 45m|
+| PreResNet18 | autoAug + mixup | 3.33 | 3.37 | 5h 45m|
 | ... | ... | ... | ... | ... |
 
 The figure below records the loss and error rate during training of the model **PreResNet18** with **AutoAugmentation+mixup**.  
